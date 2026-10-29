@@ -19,6 +19,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarRail,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KategoriListe } from "@/components/sidebar/kategori-liste";
@@ -27,8 +28,9 @@ import { useSokeindeks } from "@/hooks/use-nvdb";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import { STANDARD_SOKEVALG, sokVegobjekttyper, type Sokevalg } from "@/lib/nvdb/sok";
 import { lagreScroll, lagreTilstand, lesScroll, lesTilstand } from "@/lib/sidemeny-lagring";
+import { ArrowUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-// Faste bredder: SidebarMenuSkeleton bruker Math.random(), som cacheComponents ikke tillater
 const SKJELETT_BREDDER = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5", "w-2/3", "w-1/2", "w-3/4"];
 
 export function AppSidebar() {
@@ -36,11 +38,11 @@ export function AppSidebar() {
   const [valg, setValg] = useState<Sokevalg>(STANDARD_SOKEVALG);
   const [apne, setApne] = useState<string[]>([]);
   const [hentetLagret, setHentetLagret] = useState(false);
+  const [visTilToppen, setVisTilToppen] = useState(false);
   const innholdRef = useRef<HTMLDivElement>(null);
   const scrollGjenopprettet = useRef(false);
   const utsattValg = useDeferredValue(valg);
 
-  // Leses etter første render, ellers blir HTML fra server og klient ulik
   useEffect(() => {
     const lagret = lesTilstand();
     if (lagret) {
@@ -70,8 +72,10 @@ export function AppSidebar() {
   }, [hentetLagret, indeks.data]);
 
   function vedScroll(e: UIEvent<HTMLDivElement>) {
+    const top = e.currentTarget.scrollTop;
+    setVisTilToppen(top > 400);
     // Ikke overskriv lagret posisjon før den er gjenopprettet
-    if (scrollGjenopprettet.current) lagreScroll(e.currentTarget.scrollTop);
+    if (scrollGjenopprettet.current) lagreScroll(top);
   }
 
   const grupper = useMemo(
@@ -136,6 +140,19 @@ export function AppSidebar() {
             ))}
         </SidebarGroup>
       </SidebarContent>
+      {visTilToppen && (
+        <SidebarFooter className="border-t">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => innholdRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            <ArrowUp />
+            Til toppen
+          </Button>
+        </SidebarFooter>
+      )}
       <SidebarRail className="after:bg-sidebar-border" />
     </Sidebar>
   );
