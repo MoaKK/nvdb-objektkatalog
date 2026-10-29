@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -8,24 +7,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { SKJULTE_EGENSKAPSTYPER, VIKTIGHET_TEKST, type Egenskapstype } from "@/lib/nvdb/schemas";
-
-const VIKTIGHET_VARIANT: Partial<Record<string, "default" | "secondary" | "outline">> = {
-  PÅKREVD_ABSOLUTT: "default",
-  PÅKREVD_IKKE_ABSOLUTT: "default",
-  BETINGET: "secondary",
-  OPSJONELL: "outline",
-};
+import { ViktighetBadge } from "@/components/viktighet-badge";
+import { SKJULTE_EGENSKAPSTYPER, type Egenskapstype } from "@/lib/nvdb/schemas";
 
 export function EgenskapTabell({ egenskaper }: { egenskaper: Egenskapstype[] }) {
   const synlige = egenskaper
-    .filter((e) => !SKJULTE_EGENSKAPSTYPER.has(e.egenskapstype) && e.viktighet !== "HISTORISK")
+    .filter(
+      (e) =>
+        !SKJULTE_EGENSKAPSTYPER.has(e.egenskapstype) &&
+        // Geometri vises med nøyaktighetskrav i kortet øverst
+        e.egenskapstype !== "Geometri" &&
+        e.viktighet !== "HISTORISK",
+    )
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
 
   return (
     <Table>
-      <TableHeader>
-        <TableRow>
+      {/* Understreket overskrift og tykkere skillelinje skiller kolonnenavn fra radene */}
+      <TableHeader className="[&_th]:underline [&_th]:underline-offset-4">
+        <TableRow className="border-b-2 hover:bg-transparent">
           <TableHead>Egenskaper</TableHead>
           <TableHead className="w-16 text-center md:w-40">
             <span className="md:hidden">Krav</span>
@@ -37,13 +37,12 @@ export function EgenskapTabell({ egenskaper }: { egenskaper: Egenskapstype[] }) 
       </TableHeader>
       <TableBody>
         {synlige.map((e) => {
-          const variant = VIKTIGHET_VARIANT[e.viktighet];
           return (
             <TableRow key={e.id}>
               <TableCell className="align-top whitespace-normal md:max-w-sm">
                 <span className="flex flex-wrap items-center gap-2 font-medium">
                   {e.navn}
-                  {variant && <Badge variant={variant}>{VIKTIGHET_TEKST[e.viktighet]}</Badge>}
+                  <ViktighetBadge viktighet={e.viktighet} forklaring={e.veiledning} />
                 </span>
                 {e.beskrivelse && (
                   <span

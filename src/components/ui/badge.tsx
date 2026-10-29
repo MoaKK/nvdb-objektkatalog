@@ -18,6 +18,11 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
+        // Viktighet i NVDB, farger fra globals.css
+        absolutt: "bg-viktighet-absolutt text-viktighet-absolutt-foreground",
+        pakrevd: "bg-viktighet-pakrevd text-viktighet-pakrevd-foreground",
+        betinget: "bg-viktighet-betinget text-viktighet-betinget-foreground",
+        opsjonell: "bg-viktighet-opsjonell text-viktighet-opsjonell-foreground",
       },
     },
     defaultVariants: {

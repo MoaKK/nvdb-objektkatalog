@@ -31,8 +31,9 @@ export function RelasjonTabell({ relasjoner, tomTekst }: Props) {
 
   return (
     <Table>
-      <TableHeader>
-        <TableRow>
+      {/* Understreket overskrift og tykkere skillelinje skiller kolonnenavn fra radene */}
+      <TableHeader className="[&_th]:underline [&_th]:underline-offset-4">
+        <TableRow className="border-b-2 hover:bg-transparent">
           <TableHead>Navn</TableHead>
           <TableHead className="w-20">Nummer</TableHead>
           <TableHead className="hidden sm:table-cell">Relasjon</TableHead>

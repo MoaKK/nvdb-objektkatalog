@@ -21,13 +21,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <SidebarProvider style={{ "--sidebar-width": "22rem" } as React.CSSProperties}>
             <AppSidebar />
-            <SidebarInset>
-              <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
+            {/* min-w-0 hindrer at brede tabeller gjør hele siden bredere enn skjermen */}
+            <SidebarInset className="min-w-0">
+              <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 md:px-4">
                 <SidebarTrigger variant="outline" size="icon-lg" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
-                <span className="text-sm text-muted-foreground">Registreringskrav for NVDB</span>
+                <span className="truncate text-sm text-muted-foreground">Registreringskrav for NVDB</span>
               </header>
-              <main className="flex-1 p-6">{children}</main>
+              <main className="flex-1 p-4 md:p-6">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </Providers>
