@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type {
-  VegobjekttypeDetail,
+  VegobjekttypeDetaljer,
   VegobjekttypeIndeks,
   Vegobjekttypekategori,
 } from "@/lib/nvdb/schemas";
@@ -41,7 +41,7 @@ export function useKategorier() {
 export function useVegobjekttype(id: number) {
   return useQuery({
     queryKey: queryKeys.vegobjekttype(id),
-    queryFn: () => hentJson<VegobjekttypeDetail>(`/api/nvdb/vegobjekttyper/${id}`),
+    queryFn: () => hentJson<VegobjekttypeDetaljer>(`/api/nvdb/vegobjekttyper/${id}`),
     enabled: Number.isInteger(id) && id > 0,
   });
 }
