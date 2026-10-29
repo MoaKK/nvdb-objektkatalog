@@ -20,6 +20,8 @@ interface Props {
   kanRedigere?: boolean;
   // NVDB sin beskrivelse under navnet. Av som standard for å holde tabellen kort.
   visNvdbBeskrivelse?: boolean;
+  // NVDB sine fargede kravmerker. Av som standard.
+  visNvdbKrav?: boolean;
   onKreves?: (egenskapstypeId: number, kreves: boolean) => void;
   onBeskrivelse?: (egenskapstypeId: number, beskrivelse: string) => Promise<void>;
 }
@@ -29,6 +31,7 @@ export function EgenskapTabell({
   krav,
   kanRedigere = false,
   visNvdbBeskrivelse = false,
+  visNvdbKrav = false,
   onKreves,
   onBeskrivelse,
 }: Props) {
@@ -46,7 +49,9 @@ export function EgenskapTabell({
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
 
   return (
-    <Table>
+    // Ramme rundt tabellen og loddrette linjer mellom kolonnene. På mobil er Kommentar
+    // skjult, så linja etter Krav-kolonnen vises bare fra md og opp.
+    <Table className="border [&_tr>*:first-child]:border-r md:[&_tr>*:nth-child(2)]:border-r">
       {/* Understreket overskrift og tykkere skillelinje skiller kolonnenavn fra radene */}
       <TableHeader className="[&_th]:underline [&_th]:underline-offset-4">
         <TableRow className="border-b-2 hover:bg-transparent">
@@ -72,7 +77,9 @@ export function EgenskapTabell({
               <TableCell className="align-top whitespace-normal md:max-w-sm">
                 <span className="flex flex-wrap items-center gap-2 font-medium">
                   {e.navn}
-                  <ViktighetBadge viktighet={e.viktighet} forklaring={e.veiledning} />
+                  {visNvdbKrav && (
+                    <ViktighetBadge viktighet={e.viktighet} forklaring={e.veiledning} />
+                  )}
                 </span>
                 {visNvdbBeskrivelse && e.beskrivelse && (
                   <span

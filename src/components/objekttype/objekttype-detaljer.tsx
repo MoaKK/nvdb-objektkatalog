@@ -29,35 +29,37 @@ export function DetaljerSkjelett() {
   );
 }
 
-// Huskes per nettleser. Bare en visningsinnstilling, ingen data.
+// Brytere som huskes per nettleser. Bare visningsinnstillinger, ingen data.
 const VIS_BESKRIVELSE_NOKKEL = "nvdb-vis-nvdb-beskrivelse";
+const VIS_KRAV_NOKKEL = "nvdb-vis-nvdb-krav";
 
-function useVisNvdbBeskrivelse() {
-  const [vis, setVis] = useState(false);
+function useLagretBryter(nokkel: string) {
+  const [paa, setPaa] = useState(false);
 
   // Leses etter første render, ellers blir HTML fra server og klient ulik
   useEffect(() => {
     try {
-      setVis(localStorage.getItem(VIS_BESKRIVELSE_NOKKEL) === "1");
+      setPaa(localStorage.getItem(nokkel) === "1");
     } catch {
       /* lagring er valgfri */
     }
-  }, []);
+  }, [nokkel]);
 
   function endre(ny: boolean) {
-    setVis(ny);
+    setPaa(ny);
     try {
-      localStorage.setItem(VIS_BESKRIVELSE_NOKKEL, ny ? "1" : "0");
+      localStorage.setItem(nokkel, ny ? "1" : "0");
     } catch {
       /* lagring er valgfri */
     }
   }
 
-  return [vis, endre] as const;
+  return [paa, endre] as const;
 }
 
 export function ObjekttypeDetaljer({ id }: { id: number }) {
-  const [visNvdbBeskrivelse, setVisNvdbBeskrivelse] = useVisNvdbBeskrivelse();
+  const [visNvdbBeskrivelse, setVisNvdbBeskrivelse] = useLagretBryter(VIS_BESKRIVELSE_NOKKEL);
+  const [visNvdbKrav, setVisNvdbKrav] = useLagretBryter(VIS_KRAV_NOKKEL);
   const type = useVegobjekttype(id);
   // Vegavdelingens egne krav fra databasen, hentes parallelt med NVDB-dataene
   const krav = useKrav(id);
@@ -106,20 +108,35 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         <CardHeader>
           <CardTitle>Egenskapstyper</CardTitle>
           <CardAction>
-            <Field orientation="horizontal" title="Vis eller skjul NVDB sin beskrivelse under hver egenskap">
-              <Switch
-                id="vis-nvdb-beskrivelse"
-                checked={visNvdbBeskrivelse}
-                onCheckedChange={(checked) => setVisNvdbBeskrivelse(checked)}
-              />
-              <FieldLabel htmlFor="vis-nvdb-beskrivelse" className="font-normal whitespace-nowrap">
-                Vis NVDB beskrivelse
-              </FieldLabel>
-            </Field>
+            <span className="flex flex-col items-start gap-2">
+              <Field orientation="horizontal" title="Vis eller skjul NVDB sine kravmerker ved hver egenskap">
+                <Switch
+                  id="vis-nvdb-krav"
+                  checked={visNvdbKrav}
+                  onCheckedChange={(checked) => setVisNvdbKrav(checked)}
+                />
+                <FieldLabel htmlFor="vis-nvdb-krav" className="font-normal whitespace-nowrap">
+                  Vis NVDB krav
+                </FieldLabel>
+              </Field>
+              <Field orientation="horizontal" title="Vis eller skjul NVDB sin beskrivelse under hver egenskap">
+                <Switch
+                  id="vis-nvdb-beskrivelse"
+                  checked={visNvdbBeskrivelse}
+                  onCheckedChange={(checked) => setVisNvdbBeskrivelse(checked)}
+                />
+                <FieldLabel htmlFor="vis-nvdb-beskrivelse" className="font-normal whitespace-nowrap">
+                  Vis NVDB beskrivelse
+                </FieldLabel>
+              </Field>
+            </span>
           </CardAction>
           <CardDescription>
-            Fargede merkene viser kravet i NVDB. 'Krav til innlevering' er hva geodata syns bør være med.
-            {kanRedigere && " Du er innlogget som admin og kan endre krav og kommentarer."}
+            {visNvdbKrav && "Fargede merkene viser kravet i NVDB. "}
+            &apos;Krav til innlevering&apos; er hva geodata syns bør være med.
+            {kanRedigere && (
+              <span className="block">Du er innlogget som admin og kan endre krav og kommentarer.</span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,6 +145,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
             krav={krav.data?.egenskaper}
             kanRedigere={kanRedigere}
             visNvdbBeskrivelse={visNvdbBeskrivelse}
+            visNvdbKrav={visNvdbKrav}
             onKreves={(egenskapstypeId, kreves) =>
               lagre.mutate({ type: "kreves", vegobjekttypeId: id, egenskapstypeId, kreves })
             }
