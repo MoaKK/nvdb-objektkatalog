@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowUp } from "lucide-react";
 import {
   useDeferredValue,
   useEffect,
@@ -10,16 +11,17 @@ import {
   type UIEvent,
 } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
   SidebarRail,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KategoriListe } from "@/components/sidebar/kategori-liste";
@@ -28,10 +30,10 @@ import { useSokeindeks } from "@/hooks/use-nvdb";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import { STANDARD_SOKEVALG, sokVegobjekttyper, type Sokevalg } from "@/lib/nvdb/sok";
 import { lagreScroll, lagreTilstand, lesScroll, lesTilstand } from "@/lib/sidemeny-lagring";
-import { ArrowUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
+// Faste bredder: SidebarMenuSkeleton bruker Math.random(), som cacheComponents ikke tillater
 const SKJELETT_BREDDER = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5", "w-2/3", "w-1/2", "w-3/4"];
+const VIS_TIL_TOPPEN_ETTER = 400;
 
 export function AppSidebar() {
   const indeks = useSokeindeks();
@@ -43,6 +45,14 @@ export function AppSidebar() {
   const scrollGjenopprettet = useRef(false);
   const utsattValg = useDeferredValue(valg);
 
+  // Kategorier brukeren har lukket under et søk. Nullstilles når søket endres.
+  const sokNokkel = `${utsattValg.tekst}|${utsattValg.kategoriId}|${utsattValg.iEgenskaper}|${utsattValg.iVerdier}`;
+  const [lukketISok, setLukketISok] = useState<{ nokkel: string; ider: string[] }>({
+    nokkel: "",
+    ider: [],
+  });
+
+  // Leses etter første render, ellers blir HTML fra server og klient ulik
   useEffect(() => {
     const lagret = lesTilstand();
     if (lagret) {
@@ -73,9 +83,19 @@ export function AppSidebar() {
 
   function vedScroll(e: UIEvent<HTMLDivElement>) {
     const top = e.currentTarget.scrollTop;
-    setVisTilToppen(top > 400);
+    setVisTilToppen(top > VIS_TIL_TOPPEN_ETTER);
     // Ikke overskriv lagret posisjon før den er gjenopprettet
     if (scrollGjenopprettet.current) lagreScroll(top);
+  }
+
+  // Lukkes en kategori fra den fastlåste overskriften, flyttes visningen til
+  // starten av kategorien så man ikke mister plassen når lista krymper
+  function holdPlassVedLukking(kategoriId: string) {
+    const container = innholdRef.current;
+    const element = container?.querySelector<HTMLElement>(`[data-kategori="${kategoriId}"]`);
+    if (!container || !element) return;
+    const avstand = element.getBoundingClientRect().top - container.getBoundingClientRect().top;
+    if (avstand < 0) container.scrollTop += avstand;
   }
 
   const grupper = useMemo(
@@ -84,10 +104,25 @@ export function AppSidebar() {
   );
 
   const filtrerer = utsattValg.tekst.trim().length > 0 || utsattValg.kategoriId !== null;
-  const antallTreff = DATAKATEGORIER.reduce((sum, k) => sum + grupper[k.id].length, 0);
+  const kategorierMedTreff = DATAKATEGORIER.filter((k) => grupper[k.id].length > 0);
+  const synligeKategorier = filtrerer ? kategorierMedTreff : DATAKATEGORIER;
+  const antallTreff = kategorierMedTreff.reduce((sum, k) => sum + grupper[k.id].length, 0);
+
+  const lukketNa = lukketISok.nokkel === sokNokkel ? lukketISok.ider : [];
   const apneKategorier = filtrerer
-    ? DATAKATEGORIER.filter((k) => grupper[k.id].length > 0).map((k) => k.id)
+    ? kategorierMedTreff.map((k) => k.id).filter((id) => !lukketNa.includes(id))
     : apne;
+
+  function endreApne(nye: string[]) {
+    if (filtrerer) {
+      setLukketISok({
+        nokkel: sokNokkel,
+        ider: kategorierMedTreff.map((k) => k.id).filter((id) => !nye.includes(id)),
+      });
+    } else {
+      setApne(nye);
+    }
+  }
 
   return (
     <Sidebar>
@@ -120,7 +155,7 @@ export function AppSidebar() {
           )}
 
           {indeks.data &&
-            (antallTreff === 0 ? (
+            (antallTreff === 0 && filtrerer ? (
               <Empty>
                 <EmptyHeader>
                   <EmptyTitle>Ingen treff</EmptyTitle>
@@ -132,14 +167,15 @@ export function AppSidebar() {
             ) : (
               <KategoriListe
                 grupper={grupper}
+                kategorier={synligeKategorier}
                 apne={apneKategorier}
-                onApneChange={(v) => {
-                  if (!filtrerer) setApne(v);
-                }}
+                onApneChange={endreApne}
+                onLukket={holdPlassVedLukking}
               />
             ))}
         </SidebarGroup>
       </SidebarContent>
+
       {visTilToppen && (
         <SidebarFooter className="border-t">
           <Button
