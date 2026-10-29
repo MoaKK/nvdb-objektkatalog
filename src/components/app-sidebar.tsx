@@ -11,14 +11,17 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarMenuSkeleton,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { KategoriListe } from "@/components/sidebar/kategori-liste";
 import { ObjekttypeFiltre } from "@/components/sidebar/objekttype-filtre";
 import { useSokeindeks } from "@/hooks/use-nvdb";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import { STANDARD_SOKEVALG, sokVegobjekttyper, type Sokevalg } from "@/lib/nvdb/sok";
+
+// Faste bredder: SidebarMenuSkeleton bruker Math.random(), som cacheComponents ikke tillater
+const SKJELETT_BREDDER = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5", "w-2/3", "w-1/2", "w-3/4"];
 
 export function AppSidebar() {
   const indeks = useSokeindeks();
@@ -53,9 +56,9 @@ export function AppSidebar() {
         <SidebarGroup>
           {indeks.isPending && (
             <SidebarMenu>
-              {Array.from({ length: 8 }).map((_, i) => (
-                <SidebarMenuItem key={i}>
-                  <SidebarMenuSkeleton />
+              {SKJELETT_BREDDER.map((bredde, i) => (
+                <SidebarMenuItem key={i} className="px-2 py-1.5">
+                  <Skeleton className={`h-4 ${bredde}`} />
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
