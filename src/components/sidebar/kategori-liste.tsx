@@ -16,6 +16,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import type { Sokegrupper } from "@/lib/nvdb/sok";
@@ -42,6 +43,7 @@ export function KategoriListe({
   onLukket,
 }: Props) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
     <Accordion
@@ -83,6 +85,10 @@ export function KategoriListe({
                     <SidebarMenuButton
                       render={<Link href={href} prefetch={false} />}
                       isActive={pathname === href}
+                      // Lukk uttrekkspanelet på mobil/nettbrett så man ser objektet med en gang
+                      onClick={() => {
+                        if (isMobile) setOpenMobile(false);
+                      }}
                       className={treff ? "h-auto flex-col items-start gap-0 py-1.5 pr-12" : "pr-12"}
                     >
                       <span className="w-full truncate">{type.navn}</span>

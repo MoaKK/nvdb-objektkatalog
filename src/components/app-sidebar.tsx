@@ -22,6 +22,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KategoriListe } from "@/components/sidebar/kategori-liste";
@@ -44,6 +45,7 @@ export function AppSidebar() {
   const innholdRef = useRef<HTMLDivElement>(null);
   const scrollGjenopprettet = useRef(false);
   const utsattValg = useDeferredValue(valg);
+  const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
   // Kategorier brukeren har lukket under et søk. Nullstilles når søket endres.
   const sokNokkel = `${utsattValg.tekst}|${utsattValg.kategoriId}|${utsattValg.iEgenskaper}|${utsattValg.iVerdier}`;
@@ -80,6 +82,16 @@ export function AppSidebar() {
     }, 300);
     return () => clearTimeout(timer);
   }, [hentetLagret, indeks.data]);
+
+  // På mobil/nettbrett bygges uttrekkspanelet på nytt hver gang det åpnes,
+  // så scrollposisjonen settes tilbake når det åpnes
+  useEffect(() => {
+    if (!isMobile || !openMobile) return;
+    const timer = setTimeout(() => {
+      innholdRef.current?.scrollTo({ top: lesScroll() });
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [isMobile, openMobile]);
 
   function vedScroll(e: UIEvent<HTMLDivElement>) {
     const top = e.currentTarget.scrollTop;
@@ -127,7 +139,13 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="gap-3 border-b p-4">
-        <Link href="/" className="font-semibold leading-tight">
+        <Link
+          href="/"
+          className="font-semibold leading-tight"
+          onClick={() => {
+            if (isMobile) setOpenMobile(false);
+          }}
+        >
           NVDB Objektkatalog
           <span className="block text-xs font-normal text-muted-foreground">
             Registreringskrav for fylkesveg
