@@ -1,13 +1,25 @@
-import Image from "next/image";
+import { Signpost } from "lucide-react";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export default function Home() {
   return (
-    <div className="max-w-2xl space-y-3">
-      <h1 className="text-2xl font-semibold">Vegobjekttyper</h1>
-      <p className="text-muted-foreground">
-        Velg en vegobjekttype i menyen til venstre for å se hvilke egenskaper som skal være med
-        ved innlevering, og hvordan objektet henger sammen med mor- og datterobjekter.
-      </p>
-    </div>
+    <Empty className="border">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Signpost />
+        </EmptyMedia>
+        <EmptyTitle>Velg en vegobjekttype</EmptyTitle>
+        <EmptyDescription>
+          Finn objektet i menyen til venstre for å se hvilke egenskaper som skal være med ved
+          innlevering, og hvordan det henger sammen med mor- og datterobjekter.
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
   );
 }
