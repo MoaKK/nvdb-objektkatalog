@@ -44,7 +44,13 @@ function Innmaling({ geometri }: { geometri: Egenskapstype }) {
   );
 }
 
-export function ObjekttypeHode({ type }: { type: VegobjekttypeDetaljer }) {
+interface Props {
+  type: VegobjekttypeDetaljer;
+  // Fra vegavdelingens database, ikke NVDB
+  fkb?: boolean;
+}
+
+export function ObjekttypeHode({ type, fkb = false }: Props) {
   const geometrier = type.egenskapstyper
     .filter((e) => e.egenskapstype === "Geometri" && e.viktighet !== "HISTORISK")
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
@@ -70,7 +76,7 @@ export function ObjekttypeHode({ type }: { type: VegobjekttypeDetaljer }) {
       <Separator />
 
         <Field orientation="horizontal">
-          <Checkbox id="fkb" disabled checked={false} />
+          <Checkbox id="fkb" disabled checked={fkb} />
           <FieldLabel htmlFor="fkb" className="font-normal">
             Skal registreres i FKB
           </FieldLabel>

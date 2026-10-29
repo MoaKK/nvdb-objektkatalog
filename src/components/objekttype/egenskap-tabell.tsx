@@ -8,9 +8,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ViktighetBadge } from "@/components/viktighet-badge";
+import type { Kravdata } from "@/lib/krav/typer";
 import { SKJULTE_EGENSKAPSTYPER, type Egenskapstype } from "@/lib/nvdb/schemas";
 
-export function EgenskapTabell({ egenskaper }: { egenskaper: Egenskapstype[] }) {
+interface Props {
+  egenskaper: Egenskapstype[];
+  // Vegavdelingens krav fra databasen, nøkkel er egenskapstype-id
+  krav?: Kravdata["egenskaper"];
+}
+
+export function EgenskapTabell({ egenskaper, krav }: Props) {
   const synlige = egenskaper
     .filter(
       (e) =>
@@ -37,6 +44,7 @@ export function EgenskapTabell({ egenskaper }: { egenskaper: Egenskapstype[] }) 
       </TableHeader>
       <TableBody>
         {synlige.map((e) => {
+          const k = krav?.[String(e.id)];
           return (
             <TableRow key={e.id}>
               <TableCell className="align-top whitespace-normal md:max-w-sm">
@@ -52,17 +60,23 @@ export function EgenskapTabell({ egenskaper }: { egenskaper: Egenskapstype[] }) 
                     {e.beskrivelse}
                   </span>
                 )}
+                {/* På mobil er Beskrivelse-kolonnen skjult, så teksten vises under navnet */}
+                {k?.beskrivelse && (
+                  <span className="mt-2 block whitespace-pre-line md:hidden">{k.beskrivelse}</span>
+                )}
               </TableCell>
               <TableCell className="align-top">
-                {/* Skrivebeskyttet til databasen og admin-innlogging er på plass */}
+                {/* Skrivebeskyttet til admin-innlogging er på plass */}
                 <Checkbox
                   disabled
-                  checked={false}
+                  checked={k?.kreves ?? false}
                   className="mx-auto"
                   aria-label={`Krav til innlevering: ${e.navn}`}
                 />
               </TableCell>
-              <TableCell className="hidden align-top whitespace-normal text-muted-foreground md:table-cell" />
+              <TableCell className="hidden align-top whitespace-pre-line md:table-cell">
+                {k?.beskrivelse}
+              </TableCell>
             </TableRow>
           );
         })}

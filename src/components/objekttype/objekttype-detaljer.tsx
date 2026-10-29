@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EgenskapTabell } from "@/components/objekttype/egenskap-tabell";
 import { ObjekttypeHode } from "@/components/objekttype/objekttype-hode";
 import { RelasjonTabell } from "@/components/objekttype/relasjon-tabell";
+import { useKrav } from "@/hooks/use-krav";
 import { useVegobjekttype } from "@/hooks/use-nvdb";
 
 export function DetaljerSkjelett() {
@@ -19,6 +20,8 @@ export function DetaljerSkjelett() {
 
 export function ObjekttypeDetaljer({ id }: { id: number }) {
   const type = useVegobjekttype(id);
+  // Vegavdelingens egne krav fra databasen, hentes parallelt med NVDB-dataene
+  const krav = useKrav(id);
 
   if (type.isPending) return <DetaljerSkjelett />;
 
@@ -35,7 +38,14 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
-      <ObjekttypeHode type={t} />
+      {krav.isError && (
+        <Alert variant="destructive">
+          <AlertTitle>Kunne ikke hente vegavdelingens krav</AlertTitle>
+          <AlertDescription>Kravene fra NVDB vises likevel.</AlertDescription>
+        </Alert>
+      )}
+
+      <ObjekttypeHode type={t} fkb={krav.data?.fkb ?? false} />
 
       <Card>
         <CardHeader>
@@ -45,7 +55,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EgenskapTabell egenskaper={t.egenskapstyper} />
+          <EgenskapTabell egenskaper={t.egenskapstyper} krav={krav.data?.egenskaper} />
         </CardContent>
       </Card>
 
