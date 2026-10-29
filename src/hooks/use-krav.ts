@@ -1,6 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { anvendEndring, type Kravendring } from "@/lib/krav/endring";
+import { lagreKravendring } from "@/lib/krav/lagre";
 import type { Kravdata } from "@/lib/krav/typer";
 
 export const kravKey = (vegobjekttypeId: number) => ["krav", vegobjekttypeId] as const;
@@ -20,5 +22,28 @@ export function useKrav(vegobjekttypeId: number) {
     },
     enabled: Number.isInteger(vegobjekttypeId) && vegobjekttypeId > 0,
     staleTime: 30_000,
+  });
+}
+
+// Lagrer en endring. Vises med en gang, og rulles tilbake hvis serveren sier nei.
+export function useLagreKrav(vegobjekttypeId: number) {
+  const queryClient = useQueryClient();
+  const key = kravKey(vegobjekttypeId);
+
+  return useMutation({
+    mutationFn: async (endring: Kravendring) => {
+      const resultat = await lagreKravendring(endring);
+      if (!resultat.ok) throw new Error(resultat.feil);
+    },
+    onMutate: async (endring) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const forrige = queryClient.getQueryData<Kravdata>(key);
+      queryClient.setQueryData<Kravdata>(key, (data) => anvendEndring(data, endring));
+      return { forrige };
+    },
+    onError: (_feil, _endring, kontekst) => {
+      if (kontekst?.forrige) queryClient.setQueryData(key, kontekst.forrige);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: key }),
   });
 }
