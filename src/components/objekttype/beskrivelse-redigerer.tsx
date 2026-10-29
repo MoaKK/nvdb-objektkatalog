@@ -35,7 +35,7 @@ export function BeskrivelseRedigerer({ verdi, navn, kanRedigere, onLagre }: Prop
             }}
           >
             <Pencil />
-            {verdi ? "Rediger" : "Legg til beskrivelse"}
+            {verdi ? "Rediger" : "Legg til kommentar"}
           </Button>
         )}
       </span>
@@ -64,7 +64,7 @@ export function BeskrivelseRedigerer({ verdi, navn, kanRedigere, onLagre }: Prop
         value={tekst}
         onChange={(e) => setTekst(e.target.value)}
         maxLength={BESKRIVELSE_MAKS}
-        aria-label={`Beskrivelse for ${navn}`}
+        aria-label={`Kommentar for ${navn}`}
         aria-invalid={forLang || undefined}
         disabled={lagrer}
         autoFocus

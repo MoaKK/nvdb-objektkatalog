@@ -18,6 +18,8 @@ interface Props {
   krav?: Kravdata["egenskaper"];
   // Bare sann for innlogget admin. Serveren sjekker uansett på nytt ved lagring.
   kanRedigere?: boolean;
+  // NVDB sin beskrivelse under navnet. Av som standard for å holde tabellen kort.
+  visNvdbBeskrivelse?: boolean;
   onKreves?: (egenskapstypeId: number, kreves: boolean) => void;
   onBeskrivelse?: (egenskapstypeId: number, beskrivelse: string) => Promise<void>;
 }
@@ -26,6 +28,7 @@ export function EgenskapTabell({
   egenskaper,
   krav,
   kanRedigere = false,
+  visNvdbBeskrivelse = false,
   onKreves,
   onBeskrivelse,
 }: Props) {
@@ -52,8 +55,8 @@ export function EgenskapTabell({
             <span className="md:hidden">Krav</span>
             <span className="hidden md:inline">Krav til innlevering</span>
           </TableHead>
-          {/* Beskrivelse skjules på mobil så navn og avkrysning får plass */}
-          <TableHead className="hidden md:table-cell">Beskrivelse</TableHead>
+          {/* Kommentar skjules på mobil så navn og avkrysning får plass */}
+          <TableHead className="hidden md:table-cell">Kommentar</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -66,7 +69,7 @@ export function EgenskapTabell({
                   {e.navn}
                   <ViktighetBadge viktighet={e.viktighet} forklaring={e.veiledning} />
                 </span>
-                {e.beskrivelse && (
+                {visNvdbBeskrivelse && e.beskrivelse && (
                   <span
                     className="mt-1 line-clamp-3 block text-xs text-muted-foreground md:line-clamp-2"
                     title={e.beskrivelse}
@@ -74,7 +77,7 @@ export function EgenskapTabell({
                     {e.beskrivelse}
                   </span>
                 )}
-                {/* På mobil er Beskrivelse-kolonnen skjult, så den vises under navnet */}
+                {/* På mobil er Kommentar-kolonnen skjult, så den vises under navnet */}
                 {(k?.beskrivelse || kanRedigere) && (
                   <span className="mt-2 block md:hidden">
                     <BeskrivelseRedigerer

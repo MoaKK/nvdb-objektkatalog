@@ -1,8 +1,18 @@
 "use client";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { EgenskapTabell } from "@/components/objekttype/egenskap-tabell";
 import { ObjekttypeHode } from "@/components/objekttype/objekttype-hode";
 import { RelasjonTabell } from "@/components/objekttype/relasjon-tabell";
@@ -19,7 +29,35 @@ export function DetaljerSkjelett() {
   );
 }
 
+// Huskes per nettleser. Bare en visningsinnstilling, ingen data.
+const VIS_BESKRIVELSE_NOKKEL = "nvdb-vis-nvdb-beskrivelse";
+
+function useVisNvdbBeskrivelse() {
+  const [vis, setVis] = useState(false);
+
+  // Leses etter første render, ellers blir HTML fra server og klient ulik
+  useEffect(() => {
+    try {
+      setVis(localStorage.getItem(VIS_BESKRIVELSE_NOKKEL) === "1");
+    } catch {
+      /* lagring er valgfri */
+    }
+  }, []);
+
+  function endre(ny: boolean) {
+    setVis(ny);
+    try {
+      localStorage.setItem(VIS_BESKRIVELSE_NOKKEL, ny ? "1" : "0");
+    } catch {
+      /* lagring er valgfri */
+    }
+  }
+
+  return [vis, endre] as const;
+}
+
 export function ObjekttypeDetaljer({ id }: { id: number }) {
+  const [visNvdbBeskrivelse, setVisNvdbBeskrivelse] = useVisNvdbBeskrivelse();
   const type = useVegobjekttype(id);
   // Vegavdelingens egne krav fra databasen, hentes parallelt med NVDB-dataene
   const krav = useKrav(id);
@@ -67,9 +105,21 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
       <Card>
         <CardHeader>
           <CardTitle>Egenskapstyper</CardTitle>
+          <CardAction>
+            <Field orientation="horizontal">
+              <Switch
+                id="vis-nvdb-beskrivelse"
+                checked={visNvdbBeskrivelse}
+                onCheckedChange={(checked) => setVisNvdbBeskrivelse(checked)}
+              />
+              <FieldLabel htmlFor="vis-nvdb-beskrivelse" className="font-normal whitespace-nowrap">
+                Vis NVDB beskrivelse
+              </FieldLabel>
+            </Field>
+          </CardAction>
           <CardDescription>
-            Merkene viser kravet i NVDB. Krav til innlevering er vegavdelingens egne krav.
-            {kanRedigere && " Du er innlogget som admin og kan endre krav og beskrivelser."}
+            Fargede merkene viser kravet i NVDB. 'Krav til innlevering' er hva geodata syns bør være med.
+            {kanRedigere && " Du er innlogget som admin og kan endre krav og kommentarer."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -77,6 +127,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
             egenskaper={t.egenskapstyper}
             krav={krav.data?.egenskaper}
             kanRedigere={kanRedigere}
+            visNvdbBeskrivelse={visNvdbBeskrivelse}
             onKreves={(egenskapstypeId, kreves) =>
               lagre.mutate({ type: "kreves", vegobjekttypeId: id, egenskapstypeId, kreves })
             }
