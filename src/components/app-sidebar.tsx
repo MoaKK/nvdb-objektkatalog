@@ -20,7 +20,6 @@ import { useSokeindeks } from "@/hooks/use-nvdb";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import { STANDARD_SOKEVALG, sokVegobjekttyper, type Sokevalg } from "@/lib/nvdb/sok";
 
-// Faste bredder: SidebarMenuSkeleton bruker Math.random(), som cacheComponents ikke tillater
 const SKJELETT_BREDDER = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5", "w-2/3", "w-1/2", "w-3/4"];
 
 export function AppSidebar() {
@@ -91,7 +90,7 @@ export function AppSidebar() {
             ))}
         </SidebarGroup>
       </SidebarContent>
-      <SidebarRail />
+      <SidebarRail className="after:bg-sidebar-border" />
     </Sidebar>
   );
 }

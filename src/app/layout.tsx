@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <AppSidebar />
             <SidebarInset>
               <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-                <SidebarTrigger className="-ml-1" />
+                <SidebarTrigger variant="outline" className="lg" size="icon-lg" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <span className="text-sm text-muted-foreground">Registreringskrav for NVDB</span>
               </header>
