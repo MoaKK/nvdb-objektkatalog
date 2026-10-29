@@ -32,6 +32,14 @@ interface Props {
 export function ObjekttypeFiltre({ valg, onChange }: Props) {
   const kategorier = useKategorier();
 
+  const kategoriListe = (kategorier.data ?? []).filter((k) => k.id !== ALLE_KATEGORIER_ID);
+
+  // Base UI Select trenger en oppslagsliste for å vise navn i stedet for id
+  const kategoriNavn: Record<string, string> = {
+    alle: "Alle kategorier",
+    ...Object.fromEntries(kategoriListe.map((k) => [String(k.id), k.navn])),
+  };
+
   function sett<K extends keyof Sokevalg>(key: K, value: Sokevalg[K]) {
     onChange({ ...valg, [key]: value });
   }
@@ -59,11 +67,11 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
       </InputGroup>
 
       <Collapsible>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="sm" className="group w-full justify-between">
-            Filtre
-            <ChevronDown className="transition-transform group-data-[state=open]:rotate-180" />
-          </Button>
+        <CollapsibleTrigger
+          render={<Button variant="ghost" size="sm" className="group w-full justify-between" />}
+        >
+          Filtre
+          <ChevronDown className="transition-transform group-data-[panel-open]:rotate-180" />
         </CollapsibleTrigger>
         <CollapsibleContent>
           <FieldGroup className="gap-4 pt-2">
@@ -94,21 +102,22 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
             <Field>
               <FieldLabel htmlFor="vegobjekttypekategori">Vegobjekttypekategori</FieldLabel>
               <Select
+                items={kategoriNavn}
                 value={valg.kategoriId === null ? "alle" : String(valg.kategoriId)}
-                onValueChange={(v) => sett("kategoriId", v === "alle" ? null : Number(v))}
+                onValueChange={(v) =>
+                  sett("kategoriId", v === null || v === "alle" ? null : Number(v))
+                }
               >
                 <SelectTrigger id="vegobjekttypekategori" size="sm" className="w-full">
-                  <SelectValue placeholder="Alle kategorier" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="alle">Alle kategorier</SelectItem>
-                  {kategorier.data
-                    ?.filter((k) => k.id !== ALLE_KATEGORIER_ID)
-                    .map((k) => (
-                      <SelectItem key={k.id} value={String(k.id)}>
-                        {k.navn}
-                      </SelectItem>
-                    ))}
+                  {kategoriListe.map((k) => (
+                    <SelectItem key={k.id} value={String(k.id)}>
+                      {k.navn}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </Field>
