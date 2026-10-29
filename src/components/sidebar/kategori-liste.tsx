@@ -28,7 +28,7 @@ export function KategoriListe({ grupper, apne, onApneChange }: Props) {
   const pathname = usePathname();
 
   return (
-    <Accordion type="multiple" value={apne} onValueChange={onApneChange}>
+    <Accordion multiple value={apne} onValueChange={(v) => onApneChange(v as string[])}>
       {DATAKATEGORIER.map((kategori) => (
         <AccordionItem key={kategori.id} value={kategori.id}>
           <AccordionTrigger className="px-2 text-sm hover:no-underline">
@@ -37,25 +37,24 @@ export function KategoriListe({ grupper, apne, onApneChange }: Props) {
               <Badge variant="secondary">{grupper[kategori.id].length}</Badge>
             </span>
           </AccordionTrigger>
-          <AccordionContent className="pb-2">
+          {/* AccordionContent understreker lenker som standard, det vil vi ikke i menyen */}
+          <AccordionContent className="pb-2 [&_a]:no-underline">
             <SidebarMenu>
               {grupper[kategori.id].map(({ type, treff }) => {
                 const href = `/objekttyper/${type.id}`;
                 return (
                   <SidebarMenuItem key={type.id}>
                     <SidebarMenuButton
-                      asChild
+                      render={<Link href={href} prefetch={false} />}
                       isActive={pathname === href}
                       className={treff ? "h-auto flex-col items-start gap-0 py-1.5" : undefined}
                     >
-                      <Link href={href}>
-                        <span className="w-full truncate">{type.navn}</span>
-                        {treff && (
-                          <span className="w-full truncate text-xs text-muted-foreground">
-                            {treff}
-                          </span>
-                        )}
-                      </Link>
+                      <span className="w-full truncate">{type.navn}</span>
+                      {treff && (
+                        <span className="w-full truncate text-xs text-muted-foreground">
+                          {treff}
+                        </span>
+                      )}
                     </SidebarMenuButton>
                     <SidebarMenuBadge>{type.id}</SidebarMenuBadge>
                   </SidebarMenuItem>
