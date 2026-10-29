@@ -44,7 +44,13 @@ function Innmaling({ geometri }: { geometri: Egenskapstype }) {
   );
 }
 
-export function ObjekttypeHode({ type }: { type: VegobjekttypeDetaljer }) {
+interface Props {
+  type: VegobjekttypeDetaljer;
+  // Fra vegavdelingens database, ikke NVDB
+  fkb?: boolean;
+}
+
+export function ObjekttypeHode({ type, fkb = false }: Props) {
   const geometrier = type.egenskapstyper
     .filter((e) => e.egenskapstype === "Geometri" && e.viktighet !== "HISTORISK")
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
@@ -67,6 +73,14 @@ export function ObjekttypeHode({ type }: { type: VegobjekttypeDetaljer }) {
           {type.må_ha_mor && <Badge variant="outline">Må ha morobjekt</Badge>}
         </span>
         {type.veiledning && <p className="text-muted-foreground">{type.veiledning}</p>}
+      <Separator />
+
+        <Field orientation="horizontal">
+          <Checkbox id="fkb" disabled checked={fkb} />
+          <FieldLabel htmlFor="fkb" className="font-normal">
+            Skal registreres i FKB
+          </FieldLabel>
+        </Field>
 
         {geometrier.length > 0 && (
           <>
@@ -81,15 +95,6 @@ export function ObjekttypeHode({ type }: { type: VegobjekttypeDetaljer }) {
             </span>
           </>
         )}
-
-        <Separator />
-        {/* FKB finnes ikke i datakatalogen; settes av vegavdelingen når admin er på plass */}
-        <Field orientation="horizontal">
-          <Checkbox id="fkb" disabled checked={false} />
-          <FieldLabel htmlFor="fkb" className="font-normal">
-            Skal registreres i FKB
-          </FieldLabel>
-        </Field>
       </CardContent>
     </Card>
   );

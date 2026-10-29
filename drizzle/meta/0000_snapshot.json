@@ -1,0 +1,110 @@
+{
+  "id": "8e918462-06c0-4c6f-a125-4453575e4b6b",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.egenskapskrav": {
+      "name": "egenskapskrav",
+      "schema": "",
+      "columns": {
+        "vegobjekttype_id": {
+          "name": "vegobjekttype_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "egenskapstype_id": {
+          "name": "egenskapstype_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kreves": {
+          "name": "kreves",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "beskrivelse": {
+          "name": "beskrivelse",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "oppdatert": {
+          "name": "oppdatert",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "egenskapskrav_vegobjekttype_id_egenskapstype_id_pk": {
+          "name": "egenskapskrav_vegobjekttype_id_egenskapstype_id_pk",
+          "columns": [
+            "vegobjekttype_id",
+            "egenskapstype_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "egenskapskrav_beskrivelse_lengde": {
+          "name": "egenskapskrav_beskrivelse_lengde",
+          "value": "char_length(\"egenskapskrav\".\"beskrivelse\") <= 1000"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.objekttypekrav": {
+      "name": "objekttypekrav",
+      "schema": "",
+      "columns": {
+        "vegobjekttype_id": {
+          "name": "vegobjekttype_id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "fkb": {
+          "name": "fkb",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "oppdatert": {
+          "name": "oppdatert",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
