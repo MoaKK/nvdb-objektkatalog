@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useDeferredValue, useMemo, useState } from "react";
+import {
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type UIEvent,
+} from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import {
@@ -19,14 +26,53 @@ import { ObjekttypeFiltre } from "@/components/sidebar/objekttype-filtre";
 import { useSokeindeks } from "@/hooks/use-nvdb";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import { STANDARD_SOKEVALG, sokVegobjekttyper, type Sokevalg } from "@/lib/nvdb/sok";
+import { lagreScroll, lagreTilstand, lesScroll, lesTilstand } from "@/lib/sidemeny-lagring";
 
+// Faste bredder: SidebarMenuSkeleton bruker Math.random(), som cacheComponents ikke tillater
 const SKJELETT_BREDDER = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5", "w-2/3", "w-1/2", "w-3/4"];
 
 export function AppSidebar() {
   const indeks = useSokeindeks();
   const [valg, setValg] = useState<Sokevalg>(STANDARD_SOKEVALG);
   const [apne, setApne] = useState<string[]>([]);
+  const [hentetLagret, setHentetLagret] = useState(false);
+  const innholdRef = useRef<HTMLDivElement>(null);
+  const scrollGjenopprettet = useRef(false);
   const utsattValg = useDeferredValue(valg);
+
+  // Leses etter første render, ellers blir HTML fra server og klient ulik
+  useEffect(() => {
+    const lagret = lesTilstand();
+    if (lagret) {
+      setValg(lagret.valg);
+      setApne(lagret.apne);
+    }
+    setHentetLagret(true);
+  }, []);
+
+  useEffect(() => {
+    if (hentetLagret) lagreTilstand({ valg, apne });
+  }, [valg, apne, hentetLagret]);
+
+  // Scroll tilbake når lista er lastet og kategoriene har rukket å åpne seg
+  useEffect(() => {
+    if (!hentetLagret || !indeks.data || scrollGjenopprettet.current) return;
+    const top = lesScroll();
+    if (top === 0) {
+      scrollGjenopprettet.current = true;
+      return;
+    }
+    const timer = setTimeout(() => {
+      innholdRef.current?.scrollTo({ top });
+      scrollGjenopprettet.current = true;
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [hentetLagret, indeks.data]);
+
+  function vedScroll(e: UIEvent<HTMLDivElement>) {
+    // Ikke overskriv lagret posisjon før den er gjenopprettet
+    if (scrollGjenopprettet.current) lagreScroll(e.currentTarget.scrollTop);
+  }
 
   const grupper = useMemo(
     () => sokVegobjekttyper(indeks.data ?? [], utsattValg),
@@ -51,7 +97,7 @@ export function AppSidebar() {
         <ObjekttypeFiltre valg={valg} onChange={setValg} />
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent ref={innholdRef} onScroll={vedScroll}>
         <SidebarGroup>
           {indeks.isPending && (
             <SidebarMenu>
