@@ -112,6 +112,13 @@ export const vegobjekttypekategoriSchema = z.object({
   sorteringsnummer: z.number().nullish(),
 });
 
+// Relasjon beriket av serveren med om den relaterte typen finnes i katalogen
+export type RelasjonMedStatus = Relasjon & { finnes: boolean };
+
+export type VegobjekttypeDetaljer = Omit<VegobjekttypeDetail, "relasjonstyper"> & {
+  relasjonstyper: { foreldre: RelasjonMedStatus[]; barn: RelasjonMedStatus[] };
+};
+
 export type Egenskapstype = z.infer<typeof egenskapstypeSchema>;
 export type Relasjon = z.infer<typeof relasjonSchema>;
 export type VegobjekttypeIndeks = z.infer<typeof vegobjekttypeIndeksSchema>;

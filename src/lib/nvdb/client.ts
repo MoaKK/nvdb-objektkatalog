@@ -3,6 +3,7 @@ import { cacheLife } from "next/cache";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import {
+  type Relasjon,
   vegobjekttypeDetailSchema,
   vegobjekttypeIndeksSchema,
   vegobjekttypekategoriSchema,
@@ -53,4 +54,20 @@ export async function hentKategorier() {
     .array(vegobjekttypekategoriSchema)
     .parse(data)
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
+}
+
+// Detaljer + om hver mor-/datterrelasjon peker på en type som finnes i katalogen.
+// Gjøres på serveren så nettleseren slipper å laste hele søkeindeksen.
+export async function hentVegobjekttypeMedRelasjoner(id: number) {
+  const [type, indeks] = await Promise.all([hentVegobjekttype(id), hentSokeindeks()]);
+  const kjente = new Set(indeks.map((t) => t.id));
+  const merk = (r: Relasjon) => ({ ...r, finnes: kjente.has(r.innhold.type.id) });
+
+  return {
+    ...type,
+    relasjonstyper: {
+      foreldre: type.relasjonstyper.foreldre.map(merk),
+      barn: type.relasjonstyper.barn.map(merk),
+    },
+  };
 }

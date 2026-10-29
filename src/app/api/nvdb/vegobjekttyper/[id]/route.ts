@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { hentVegobjekttype } from "@/lib/nvdb/client";
+import { hentVegobjekttypeMedRelasjoner } from "@/lib/nvdb/client";
 import { feilrespons } from "@/lib/nvdb/feil";
 
 // Kun rene sifre godtas, så ingen andre verdier kan smugles videre til NVDB
@@ -15,7 +15,7 @@ export async function GET(
     return NextResponse.json({ feil: "Ugyldig id" }, { status: 400 });
   }
   try {
-    const type = await hentVegobjekttype(parsed.data);
+    const type = await hentVegobjekttypeMedRelasjoner(parsed.data);
     return NextResponse.json(type, {
       headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
     });
