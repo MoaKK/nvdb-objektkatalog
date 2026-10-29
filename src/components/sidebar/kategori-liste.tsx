@@ -10,10 +10,12 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import {
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import type { Sokegrupper } from "@/lib/nvdb/sok";
@@ -22,6 +24,10 @@ interface Props {
   grupper: Sokegrupper;
   apne: string[];
   onApneChange: (apne: string[]) => void;
+}
+
+function antallTekst(antall: number) {
+  return `${antall} ${antall === 1 ? "objekt" : "objekter"}`;
 }
 
 export function KategoriListe({ grupper, apne, onApneChange }: Props) {
@@ -34,10 +40,16 @@ export function KategoriListe({ grupper, apne, onApneChange }: Props) {
           <AccordionTrigger className="px-2 text-sm hover:no-underline">
             <span className="flex flex-1 items-center justify-between gap-2 pr-2 text-left">
               {kategori.navn}
-              <Badge variant="secondary">{grupper[kategori.id].length}</Badge>
+              <Badge variant="secondary">{antallTekst(grupper[kategori.id].length)}</Badge>
             </span>
           </AccordionTrigger>
+          {/* AccordionContent understreker lenker som standard, det vil vi ikke i menyen */}
           <AccordionContent className="pb-2 [&_a]:no-underline">
+            <SidebarSeparator className="mx-0 mb-1" />
+            <SidebarGroupLabel className="justify-between underline underline-offset-4">
+              <span>Navn</span>
+              <span>Nummer</span>
+            </SidebarGroupLabel>
             <SidebarMenu>
               {grupper[kategori.id].map(({ type, treff }) => {
                 const href = `/objekttyper/${type.id}`;
