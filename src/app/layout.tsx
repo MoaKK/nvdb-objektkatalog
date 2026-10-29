@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Innlogging } from "@/components/innlogging";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -27,6 +28,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <SidebarTrigger variant="outline" size="icon-lg" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <span className="truncate text-sm text-muted-foreground">Registreringskrav for NVDB</span>
+                <span className="ml-auto shrink-0">
+                  <Innlogging />
+                </span>
               </header>
               <main className="flex-1 p-4 md:p-6">{children}</main>
             </SidebarInset>
