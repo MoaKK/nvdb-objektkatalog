@@ -37,7 +37,6 @@ export function KategoriListe({ grupper, apne, onApneChange }: Props) {
               <Badge variant="secondary">{grupper[kategori.id].length}</Badge>
             </span>
           </AccordionTrigger>
-          {/* AccordionContent understreker lenker som standard, det vil vi ikke i menyen */}
           <AccordionContent className="pb-2 [&_a]:no-underline">
             <SidebarMenu>
               {grupper[kategori.id].map(({ type, treff }) => {
@@ -47,7 +46,7 @@ export function KategoriListe({ grupper, apne, onApneChange }: Props) {
                     <SidebarMenuButton
                       render={<Link href={href} prefetch={false} />}
                       isActive={pathname === href}
-                      className={treff ? "h-auto flex-col items-start gap-0 py-1.5" : undefined}
+                      className={treff ? "h-auto flex-col items-start gap-0 py-1.5 pr-12" : "pr-12"}
                     >
                       <span className="w-full truncate">{type.navn}</span>
                       {treff && (
