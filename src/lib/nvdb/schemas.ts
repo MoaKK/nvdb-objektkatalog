@@ -24,6 +24,8 @@ export const egenskapstypeSchema = z.object({
   id: z.number(),
   navn: z.string(),
   beskrivelse: z.string().nullish(),
+  // Forklaring fra NVDB, f.eks. når en betinget egenskap er påkrevd
+  veiledning: z.string().nullish(),
   egenskapstype: z.string(),
   viktighet: z
     .string()
@@ -31,6 +33,11 @@ export const egenskapstypeSchema = z.object({
     .transform((v) => v ?? "IKKE_SATT"),
   sorteringsnummer: z.number().nullish(),
   tillatte_verdier: z.array(tillattVerdiSchema).nullish(),
+  // Bare satt for geometri-egenskaper. Nøyaktighetskrav er i meter.
+  geometritype: z.string().nullish(),
+  dimensjoner: z.number().nullish(),
+  nøyaktighetskrav_grunnriss: z.number().nullish(),
+  nøyaktighetskrav_høyde: z.number().nullish(),
 });
 
 
