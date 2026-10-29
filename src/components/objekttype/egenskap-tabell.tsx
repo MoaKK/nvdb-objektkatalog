@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { BeskrivelseRedigerer } from "@/components/objekttype/beskrivelse-redigerer";
 import { ViktighetBadge } from "@/components/viktighet-badge";
 import type { Kravdata } from "@/lib/krav/typer";
 import { SKJULTE_EGENSKAPSTYPER, type Egenskapstype } from "@/lib/nvdb/schemas";
@@ -15,9 +16,22 @@ interface Props {
   egenskaper: Egenskapstype[];
   // Vegavdelingens krav fra databasen, nøkkel er egenskapstype-id
   krav?: Kravdata["egenskaper"];
+  // Bare sann for innlogget admin. Serveren sjekker uansett på nytt ved lagring.
+  kanRedigere?: boolean;
+  onKreves?: (egenskapstypeId: number, kreves: boolean) => void;
+  onBeskrivelse?: (egenskapstypeId: number, beskrivelse: string) => Promise<void>;
 }
 
-export function EgenskapTabell({ egenskaper, krav }: Props) {
+export function EgenskapTabell({
+  egenskaper,
+  krav,
+  kanRedigere = false,
+  onKreves,
+  onBeskrivelse,
+}: Props) {
+  const lagreBeskrivelse = (id: number) => (tekst: string) =>
+    onBeskrivelse ? onBeskrivelse(id, tekst) : Promise.resolve();
+
   const synlige = egenskaper
     .filter(
       (e) =>
@@ -60,22 +74,34 @@ export function EgenskapTabell({ egenskaper, krav }: Props) {
                     {e.beskrivelse}
                   </span>
                 )}
-                {/* På mobil er Beskrivelse-kolonnen skjult, så teksten vises under navnet */}
-                {k?.beskrivelse && (
-                  <span className="mt-2 block whitespace-pre-line md:hidden">{k.beskrivelse}</span>
+                {/* På mobil er Beskrivelse-kolonnen skjult, så den vises under navnet */}
+                {(k?.beskrivelse || kanRedigere) && (
+                  <span className="mt-2 block md:hidden">
+                    <BeskrivelseRedigerer
+                      verdi={k?.beskrivelse ?? null}
+                      navn={e.navn}
+                      kanRedigere={kanRedigere}
+                      onLagre={lagreBeskrivelse(e.id)}
+                    />
+                  </span>
                 )}
               </TableCell>
               <TableCell className="align-top">
-                {/* Skrivebeskyttet til admin-innlogging er på plass */}
                 <Checkbox
-                  disabled
+                  disabled={!kanRedigere}
                   checked={k?.kreves ?? false}
+                  onCheckedChange={(c) => onKreves?.(e.id, c === true)}
                   className="mx-auto"
                   aria-label={`Krav til innlevering: ${e.navn}`}
                 />
               </TableCell>
-              <TableCell className="hidden align-top whitespace-pre-line md:table-cell">
-                {k?.beskrivelse}
+              <TableCell className="hidden align-top whitespace-normal md:table-cell">
+                <BeskrivelseRedigerer
+                  verdi={k?.beskrivelse ?? null}
+                  navn={e.navn}
+                  kanRedigere={kanRedigere}
+                  onLagre={lagreBeskrivelse(e.id)}
+                />
               </TableCell>
             </TableRow>
           );

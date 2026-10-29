@@ -48,9 +48,11 @@ interface Props {
   type: VegobjekttypeDetaljer;
   // Fra vegavdelingens database, ikke NVDB
   fkb?: boolean;
+  kanRedigere?: boolean;
+  onFkb?: (fkb: boolean) => void;
 }
 
-export function ObjekttypeHode({ type, fkb = false }: Props) {
+export function ObjekttypeHode({ type, fkb = false, kanRedigere = false, onFkb }: Props) {
   const geometrier = type.egenskapstyper
     .filter((e) => e.egenskapstype === "Geometri" && e.viktighet !== "HISTORISK")
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
@@ -76,7 +78,12 @@ export function ObjekttypeHode({ type, fkb = false }: Props) {
       <Separator />
 
         <Field orientation="horizontal">
-          <Checkbox id="fkb" disabled checked={fkb} />
+          <Checkbox
+            id="fkb"
+            disabled={!kanRedigere}
+            checked={fkb}
+            onCheckedChange={(c) => onFkb?.(c === true)}
+          />
           <FieldLabel htmlFor="fkb" className="font-normal">
             Skal registreres i FKB
           </FieldLabel>

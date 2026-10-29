@@ -6,8 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EgenskapTabell } from "@/components/objekttype/egenskap-tabell";
 import { ObjekttypeHode } from "@/components/objekttype/objekttype-hode";
 import { RelasjonTabell } from "@/components/objekttype/relasjon-tabell";
-import { useKrav } from "@/hooks/use-krav";
+import { useKrav, useLagreKrav } from "@/hooks/use-krav";
 import { useVegobjekttype } from "@/hooks/use-nvdb";
+import { authClient } from "@/lib/auth-client";
 
 export function DetaljerSkjelett() {
   return (
@@ -22,6 +23,10 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   const type = useVegobjekttype(id);
   // Vegavdelingens egne krav fra databasen, hentes parallelt med NVDB-dataene
   const krav = useKrav(id);
+  const lagre = useLagreKrav(id);
+  // Bare admin-kontoer får sesjon, så en sesjon betyr admin. Serveren sjekker likevel ved lagring.
+  const { data: sesjon } = authClient.useSession();
+  const kanRedigere = !!sesjon && krav.isSuccess;
 
   if (type.isPending) return <DetaljerSkjelett />;
 
@@ -45,17 +50,45 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         </Alert>
       )}
 
-      <ObjekttypeHode type={t} fkb={krav.data?.fkb ?? false} />
+      {lagre.isError && (
+        <Alert variant="destructive">
+          <AlertTitle>Endringen ble ikke lagret</AlertTitle>
+          <AlertDescription>{lagre.error.message}</AlertDescription>
+        </Alert>
+      )}
+
+      <ObjekttypeHode
+        type={t}
+        fkb={krav.data?.fkb ?? false}
+        kanRedigere={kanRedigere}
+        onFkb={(fkb) => lagre.mutate({ type: "fkb", vegobjekttypeId: id, fkb })}
+      />
 
       <Card>
         <CardHeader>
           <CardTitle>Egenskapstyper</CardTitle>
           <CardDescription>
             Merkene viser kravet i NVDB. Krav til innlevering er vegavdelingens egne krav.
+            {kanRedigere && " Du er innlogget som admin og kan endre krav og beskrivelser."}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EgenskapTabell egenskaper={t.egenskapstyper} krav={krav.data?.egenskaper} />
+          <EgenskapTabell
+            egenskaper={t.egenskapstyper}
+            krav={krav.data?.egenskaper}
+            kanRedigere={kanRedigere}
+            onKreves={(egenskapstypeId, kreves) =>
+              lagre.mutate({ type: "kreves", vegobjekttypeId: id, egenskapstypeId, kreves })
+            }
+            onBeskrivelse={async (egenskapstypeId, beskrivelse) => {
+              await lagre.mutateAsync({
+                type: "beskrivelse",
+                vegobjekttypeId: id,
+                egenskapstypeId,
+                beskrivelse,
+              });
+            }}
+          />
         </CardContent>
       </Card>
 
