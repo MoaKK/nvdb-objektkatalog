@@ -50,13 +50,18 @@ export function EgenskapTabell({
       {/* Understreket overskrift og tykkere skillelinje skiller kolonnenavn fra radene */}
       <TableHeader className="[&_th]:underline [&_th]:underline-offset-4">
         <TableRow className="border-b-2 hover:bg-transparent">
-          <TableHead>Egenskaper</TableHead>
-          <TableHead className="w-16 text-center md:w-40">
+          <TableHead title="Egenskapstypene i NVDB, med NVDB sitt krav">Egenskaper</TableHead>
+          <TableHead
+            className="w-16 text-center md:w-40"
+            title="Vegavdelingens krav: om egenskapen må være med ved innlevering"
+          >
             <span className="md:hidden">Krav</span>
             <span className="hidden md:inline">Krav til innlevering</span>
           </TableHead>
           {/* Kommentar skjules på mobil så navn og avkrysning får plass */}
-          <TableHead className="hidden md:table-cell">Kommentar</TableHead>
+          <TableHead className="hidden md:table-cell" title="Vegavdelingens kommentar til egenskapen">
+            Kommentar
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -96,6 +101,11 @@ export function EgenskapTabell({
                   onCheckedChange={(c) => onKreves?.(e.id, c === true)}
                   className="mx-auto"
                   aria-label={`Krav til innlevering: ${e.navn}`}
+                  title={
+                    kanRedigere
+                      ? `Marker om ${e.navn} må være med ved innlevering`
+                      : `${e.navn}: ${k?.kreves ? "må være med ved innlevering" : "ikke krav til innlevering"}`
+                  }
                 />
               </TableCell>
               <TableCell className="hidden align-top whitespace-normal md:table-cell">

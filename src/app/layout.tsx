@@ -25,9 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* min-w-0 hindrer at brede tabeller gjør hele siden bredere enn skjermen */}
             <SidebarInset className="min-w-0">
               <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 md:px-4">
-                <SidebarTrigger variant="outline" size="icon-lg" />
+                <SidebarTrigger variant="outline" size="icon-lg" title="Vis eller skjul menyen" />
                 <Separator orientation="vertical" className="mr-2 h-4" />
-                <span className="truncate text-sm text-muted-foreground">Registreringskrav for NVDB</span>
+                <span className="truncate text-sm text-muted-foreground">Registreringskrav fra geodata</span>
                 <span className="ml-auto shrink-0">
                   <Innlogging />
                 </span>

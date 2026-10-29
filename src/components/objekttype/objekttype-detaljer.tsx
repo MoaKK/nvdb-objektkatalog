@@ -106,7 +106,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         <CardHeader>
           <CardTitle>Egenskapstyper</CardTitle>
           <CardAction>
-            <Field orientation="horizontal">
+            <Field orientation="horizontal" title="Vis eller skjul NVDB sin beskrivelse under hver egenskap">
               <Switch
                 id="vis-nvdb-beskrivelse"
                 checked={visNvdbBeskrivelse}

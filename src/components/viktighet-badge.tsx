@@ -26,7 +26,13 @@ export function ViktighetBadge({ viktighet, forklaring }: Props) {
   if (!variant) return null;
   const tekst = VIKTIGHET_TEKST[viktighet];
 
-  if (!forklaring) return <Badge variant={variant}>{tekst}</Badge>;
+  if (!forklaring) {
+    return (
+      <Badge variant={variant} title={`Krav i NVDB: ${tekst}`}>
+        {tekst}
+      </Badge>
+    );
+  }
 
   return (
     <Popover>

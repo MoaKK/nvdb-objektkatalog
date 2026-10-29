@@ -16,6 +16,7 @@ export function Innlogging() {
       <Button
         variant="outline"
         size="sm"
+        title="Logg inn med Google. Bare for administratorer."
         onClick={() =>
           authClient.signIn.social({
             provider: "google",
@@ -33,7 +34,7 @@ export function Innlogging() {
 
   return (
     <span className="flex items-center gap-2">
-      <Badge variant="secondary">
+      <Badge variant="secondary" title="Du er innlogget som administrator">
         <ShieldCheck data-icon="inline-start" />
         Admin
       </Badge>
@@ -43,7 +44,12 @@ export function Innlogging() {
       >
         {sesjon.user.email}
       </span>
-      <Button variant="outline" size="sm" onClick={() => authClient.signOut()}>
+      <Button
+        variant="outline"
+        size="sm"
+        title="Logg ut"
+        onClick={() => authClient.signOut()}
+      >
         <LogOut />
         <span className="hidden sm:inline">Logg ut</span>
         <span className="sr-only sm:hidden">Logg ut</span>

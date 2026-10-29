@@ -64,18 +64,26 @@ export function KategoriListe({
           // Overskriften (h3) blir liggende øverst mens man scroller gjennom kategorien
           className="[&>h3]:sticky [&>h3]:top-0 [&>h3]:z-10 [&>h3]:bg-sidebar"
         >
-          <AccordionTrigger className="px-2 text-sm hover:no-underline">
+          <AccordionTrigger
+            className="px-2 text-sm hover:no-underline"
+            title={`Vis eller skjul ${kategori.navn}`}
+          >
             <span className="flex flex-1 items-center justify-between gap-2 pr-2 text-left">
               {kategori.navn}
-              <Badge variant="secondary">{antallTekst(grupper[kategori.id].length)}</Badge>
+              <Badge
+                variant="secondary"
+                title={`${antallTekst(grupper[kategori.id].length)} i ${kategori.navn}`}
+              >
+                {antallTekst(grupper[kategori.id].length)}
+              </Badge>
             </span>
           </AccordionTrigger>
           {/* AccordionContent understreker lenker som standard, det vil vi ikke i menyen */}
           <AccordionContent className="pb-2 [&_a]:no-underline">
             <SidebarSeparator className="mx-0 mb-1" />
             <SidebarGroupLabel className="justify-between underline underline-offset-4">
-              <span>Navn</span>
-              <span>Nummer</span>
+              <span title="Navnet på vegobjekttypen">Navn</span>
+              <span title="Vegobjekttypens nummer i NVDB">Nummer</span>
             </SidebarGroupLabel>
             <SidebarMenu>
               {grupper[kategori.id].map(({ type, treff }) => {
@@ -85,6 +93,7 @@ export function KategoriListe({
                     <SidebarMenuButton
                       render={<Link href={href} prefetch={false} />}
                       isActive={pathname === href}
+                      title={`${type.navn} (nummer ${type.id})${treff ? `. ${treff}` : ""}`}
                       // Lukk uttrekkspanelet på mobil/nettbrett så man ser objektet med en gang
                       onClick={() => {
                         if (isMobile) setOpenMobile(false);

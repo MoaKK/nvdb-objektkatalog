@@ -28,6 +28,7 @@ export function BeskrivelseRedigerer({ verdi, navn, kanRedigere, onLagre }: Prop
             variant="ghost"
             size="sm"
             className="-ml-2 text-muted-foreground"
+            title={verdi ? `Rediger kommentar for ${navn}` : `Legg til kommentar for ${navn}`}
             onClick={() => {
               setTekst(verdi ?? "");
               setFeil(null);
@@ -65,18 +66,33 @@ export function BeskrivelseRedigerer({ verdi, navn, kanRedigere, onLagre }: Prop
         onChange={(e) => setTekst(e.target.value)}
         maxLength={BESKRIVELSE_MAKS}
         aria-label={`Kommentar for ${navn}`}
+        title={`Kommentar for ${navn}`}
         aria-invalid={forLang || undefined}
         disabled={lagrer}
         autoFocus
       />
       <span className="flex flex-wrap items-center gap-2">
-        <Button size="sm" onClick={lagre} disabled={lagrer || forLang || uendret}>
+        <Button
+          size="sm"
+          title="Lagre kommentaren"
+          onClick={lagre}
+          disabled={lagrer || forLang || uendret}
+        >
           {lagrer ? "Lagrer..." : "Lagre"}
         </Button>
-        <Button variant="ghost" size="sm" onClick={() => setRedigerer(false)} disabled={lagrer}>
+        <Button
+          variant="ghost"
+          size="sm"
+          title="Avbryt uten å lagre"
+          onClick={() => setRedigerer(false)}
+          disabled={lagrer}
+        >
           Avbryt
         </Button>
-        <span className="ml-auto text-xs text-muted-foreground tabular-nums">
+        <span
+          className="ml-auto text-xs text-muted-foreground tabular-nums"
+          title={`Maks ${BESKRIVELSE_MAKS} tegn`}
+        >
           {tekst.length}/{BESKRIVELSE_MAKS}
         </span>
       </span>

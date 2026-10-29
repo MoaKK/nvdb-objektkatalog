@@ -142,13 +142,14 @@ export function AppSidebar() {
         <Link
           href="/"
           className="font-semibold leading-tight"
+          title="Til forsiden"
           onClick={() => {
             if (isMobile) setOpenMobile(false);
           }}
         >
           NVDB Objektkatalog
           <span className="block text-xs font-normal text-muted-foreground">
-            Registreringskrav for fylkesveg
+            Registreringskrav fra geodata
           </span>
         </Link>
         <ObjekttypeFiltre valg={valg} onChange={setValg} />
@@ -200,6 +201,7 @@ export function AppSidebar() {
             variant="outline"
             size="sm"
             className="w-full"
+            title="Gå til toppen av lista"
             onClick={() => innholdRef.current?.scrollTo({ top: 0, behavior: "smooth" })}
           >
             <ArrowUp />
@@ -207,7 +209,7 @@ export function AppSidebar() {
           </Button>
         </SidebarFooter>
       )}
-      <SidebarRail className="after:bg-sidebar-border" />
+      <SidebarRail className="after:bg-sidebar-border" title="Vis eller skjul menyen" />
     </Sidebar>
   );
 }
