@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type UIEvent,
 } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -34,6 +35,10 @@ import { lagreScroll, lagreTilstand, lesScroll, lesTilstand } from "@/lib/sideme
 const SKJELETT_BREDDER = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5", "w-2/3", "w-1/2", "w-3/4"];
 const VIS_TIL_TOPPEN_ETTER = 400;
 
+function ingenAbonnement() {
+  return () => {};
+}
+
 export function AppSidebar() {
   const indeks = useSokeindeks();
   const [valg, setValg] = useState<Sokevalg>(STANDARD_SOKEVALG);
@@ -51,14 +56,20 @@ export function AppSidebar() {
     ider: [],
   });
 
-  useEffect(() => {
+  const erINettleseren = useSyncExternalStore(
+    ingenAbonnement,
+    () => true,
+    () => false,
+  );
+
+  if (erINettleseren && !hentetLagret) {
+    setHentetLagret(true);
     const lagret = lesTilstand();
     if (lagret) {
       setValg(lagret.valg);
       setApne(lagret.apne);
     }
-    setHentetLagret(true);
-  }, []);
+  }
 
   useEffect(() => {
     if (hentetLagret) lagreTilstand({ valg, apne });

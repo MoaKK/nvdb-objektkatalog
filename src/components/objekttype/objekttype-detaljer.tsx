@@ -1,7 +1,7 @@
 "use client";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import {
   Card,
   CardAction,
@@ -31,21 +31,40 @@ export function DetaljerSkjelett() {
 
 const VIS_BESKRIVELSE_NOKKEL = "nvdb-vis-nvdb-beskrivelse";
 const VIS_KRAV_NOKKEL = "nvdb-vis-nvdb-krav";
+const BRYTER_ENDRET = "nvdb-bryter-endret";
+
+const bryterIMinnet = new Map<string, boolean>();
+
+function lesBryter(nokkel: string) {
+  try {
+    return localStorage.getItem(nokkel) === "1";
+  } catch {
+    return bryterIMinnet.get(nokkel) ?? false;
+  }
+}
+
+function abonnerPaaBrytere(varsle: () => void) {
+  window.addEventListener("storage", varsle);
+  window.addEventListener(BRYTER_ENDRET, varsle);
+  return () => {
+    window.removeEventListener("storage", varsle);
+    window.removeEventListener(BRYTER_ENDRET, varsle);
+  };
+}
 
 function useLagretBryter(nokkel: string) {
-  const [paa, setPaa] = useState(false);
-
-  useEffect(() => {
-    try {
-      setPaa(localStorage.getItem(nokkel) === "1");
-    } catch {}
-  }, [nokkel]);
+  const paa = useSyncExternalStore(
+    abonnerPaaBrytere,
+    () => lesBryter(nokkel),
+    () => false,
+  );
 
   function endre(ny: boolean) {
-    setPaa(ny);
+    bryterIMinnet.set(nokkel, ny);
     try {
       localStorage.setItem(nokkel, ny ? "1" : "0");
     } catch {}
+    window.dispatchEvent(new Event(BRYTER_ENDRET));
   }
 
   return [paa, endre] as const;
