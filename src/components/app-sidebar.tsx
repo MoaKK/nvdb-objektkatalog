@@ -21,7 +21,6 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -137,7 +136,7 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar>
+    <Sidebar variant="inset">
       <SidebarHeader className="gap-3 border-b p-4">
         <Link
           href="/"
@@ -209,7 +208,6 @@ export function AppSidebar() {
           </Button>
         </SidebarFooter>
       )}
-      <SidebarRail className="after:bg-sidebar-border" title="Vis eller skjul menyen" />
     </Sidebar>
   );
 }
