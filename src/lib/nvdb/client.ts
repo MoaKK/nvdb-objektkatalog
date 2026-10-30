@@ -30,7 +30,7 @@ async function nvdbFetch(path: string): Promise<unknown> {
 }
 
 export async function hentSokeindeks() {
-  "use cache";
+  "use cache: remote";
   cacheLife("days");
 
   const data = await nvdbFetch("/vegobjekttyper");
@@ -38,7 +38,7 @@ export async function hentSokeindeks() {
 }
 
 export async function hentVegobjekttype(id: number) {
-  "use cache";
+  "use cache: remote";
   cacheLife("days");
 
   const data = await nvdbFetch(`/vegobjekttyper/${id}`);
@@ -46,7 +46,7 @@ export async function hentVegobjekttype(id: number) {
 }
 
 export async function hentKategorier() {
-  "use cache";
+  "use cache: remote";
   cacheLife("days");
 
   const data = await nvdbFetch("/kategorier");
