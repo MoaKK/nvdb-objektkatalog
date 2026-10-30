@@ -14,13 +14,9 @@ import { SKJULTE_EGENSKAPSTYPER, type Egenskapstype } from "@/lib/nvdb/schemas";
 
 interface Props {
   egenskaper: Egenskapstype[];
-  // Vegavdelingens krav fra databasen, nøkkel er egenskapstype-id
   krav?: Kravdata["egenskaper"];
-  // Bare sann for innlogget admin. Serveren sjekker uansett på nytt ved lagring.
   kanRedigere?: boolean;
-  // NVDB sin beskrivelse under navnet. Av som standard for å holde tabellen kort.
   visNvdbBeskrivelse?: boolean;
-  // NVDB sine fargede kravmerker. Av som standard.
   visNvdbKrav?: boolean;
   onKreves?: (egenskapstypeId: number, kreves: boolean) => void;
   onBeskrivelse?: (egenskapstypeId: number, beskrivelse: string) => Promise<void>;
@@ -42,20 +38,18 @@ export function EgenskapTabell({
     .filter(
       (e) =>
         !SKJULTE_EGENSKAPSTYPER.has(e.egenskapstype) &&
-        // Geometri vises med nøyaktighetskrav i kortet øverst
         e.egenskapstype !== "Geometri" &&
         e.viktighet !== "HISTORISK",
     )
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
 
   return (
-    // Ramme rundt tabellen og loddrette linjer mellom kolonnene. På mobil er Kommentar
-    // skjult, så linja etter Krav-kolonnen vises bare fra md og opp.
-    <Table className="border [&_tr>*:first-child]:border-r md:[&_tr>*:nth-child(2)]:border-r">
-      {/* Understreket overskrift og tykkere skillelinje skiller kolonnenavn fra radene */}
+    <Table className="border md:table-fixed [&_tr>*:first-child]:border-r md:[&_tr>*:nth-child(2)]:border-r">
       <TableHeader className="[&_th]:underline [&_th]:underline-offset-4">
         <TableRow className="border-b-2 hover:bg-transparent">
-          <TableHead title="Egenskapstypene i NVDB, med NVDB sitt krav">Egenskaper</TableHead>
+          <TableHead className="md:w-[40%]" title="Egenskapstypene i NVDB, med NVDB sitt krav">
+            Egenskaper
+          </TableHead>
           <TableHead
             className="w-16 text-center md:w-40"
             title="Vegavdelingens krav: om egenskapen må være med ved innlevering"
@@ -63,7 +57,6 @@ export function EgenskapTabell({
             <span className="md:hidden">Krav</span>
             <span className="hidden md:inline">Krav til innlevering</span>
           </TableHead>
-          {/* Kommentar skjules på mobil så navn og avkrysning får plass */}
           <TableHead className="hidden md:table-cell" title="Vegavdelingens kommentar til egenskapen">
             Kommentar
           </TableHead>
@@ -74,7 +67,7 @@ export function EgenskapTabell({
           const k = krav?.[String(e.id)];
           return (
             <TableRow key={e.id}>
-              <TableCell className="align-top whitespace-normal md:max-w-sm">
+              <TableCell className="align-top whitespace-normal wrap-break-word">
                 <span className="flex flex-wrap items-center gap-2 font-medium">
                   {e.navn}
                   {visNvdbKrav && (
@@ -89,7 +82,6 @@ export function EgenskapTabell({
                     {e.beskrivelse}
                   </span>
                 )}
-                {/* På mobil er Kommentar-kolonnen skjult, så den vises under navnet */}
                 {(k?.beskrivelse || kanRedigere) && (
                   <span className="mt-2 block md:hidden">
                     <BeskrivelseRedigerer
@@ -115,7 +107,7 @@ export function EgenskapTabell({
                   }
                 />
               </TableCell>
-              <TableCell className="hidden align-top whitespace-normal md:table-cell">
+              <TableCell className="hidden align-top whitespace-normal wrap-anywhere md:table-cell">
                 <BeskrivelseRedigerer
                   verdi={k?.beskrivelse ?? null}
                   navn={e.navn}

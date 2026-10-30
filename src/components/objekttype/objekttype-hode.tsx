@@ -15,7 +15,13 @@ const GEOMETRI_TEKST: Record<string, string> = {
 
 const PAKREVD = new Set(["PÅKREVD_ABSOLUTT", "PÅKREVD_IKKE_ABSOLUTT"]);
 
-// NVDB oppgir nøyaktighetskrav i meter
+const REKKEFOLGE = ["PÅKREVD_ABSOLUTT", "PÅKREVD_IKKE_ABSOLUTT", "BETINGET", "OPSJONELL", "MINDRE_VIKTIG"];
+
+function viktighetsrekkefolge(viktighet: string) {
+  const plass = REKKEFOLGE.indexOf(viktighet);
+  return plass === -1 ? REKKEFOLGE.length : plass;
+}
+
 function iCm(meter?: number | null) {
   return meter ? `${Math.round(meter * 100)} cm` : null;
 }
@@ -23,7 +29,6 @@ function iCm(meter?: number | null) {
 function Innmaling({ geometri }: { geometri: Egenskapstype }) {
   const form = GEOMETRI_TEKST[geometri.geometritype ?? ""] ?? geometri.navn.toLowerCase();
   const horisontalt = iCm(geometri.nøyaktighetskrav_grunnriss);
-  // Vertikalt krav gjelder bare 3D-geometri
   const vertikalt = geometri.dimensjoner === 2 ? null : iCm(geometri.nøyaktighetskrav_høyde);
 
   return (
@@ -46,7 +51,6 @@ function Innmaling({ geometri }: { geometri: Egenskapstype }) {
 
 interface Props {
   type: VegobjekttypeDetaljer;
-  // Fra vegavdelingens database, ikke NVDB
   fkb?: boolean;
   kanRedigere?: boolean;
   onFkb?: (fkb: boolean) => void;
@@ -55,7 +59,11 @@ interface Props {
 export function ObjekttypeHode({ type, fkb = false, kanRedigere = false, onFkb }: Props) {
   const geometrier = type.egenskapstyper
     .filter((e) => e.egenskapstype === "Geometri" && e.viktighet !== "HISTORISK")
-    .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
+    .sort(
+      (a, b) =>
+        viktighetsrekkefolge(a.viktighet) - viktighetsrekkefolge(b.viktighet) ||
+        (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0),
+    );
 
   return (
     <Card>

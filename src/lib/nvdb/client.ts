@@ -56,8 +56,6 @@ export async function hentKategorier() {
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
 }
 
-// Detaljer + om hver mor-/datterrelasjon peker på en type som finnes i katalogen.
-// Gjøres på serveren så nettleseren slipper å laste hele søkeindeksen.
 export async function hentVegobjekttypeMedRelasjoner(id: number) {
   const [type, indeks] = await Promise.all([hentVegobjekttype(id), hentSokeindeks()]);
   const kjente = new Set(indeks.map((t) => t.id));

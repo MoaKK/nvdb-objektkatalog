@@ -7,7 +7,6 @@ export const DATAKATEGORIER: { id: Datakategori; navn: string }[] = [
   { id: "annet", navn: "Annet" },
 ];
 
-// NVDB koder hovedkategori som "Kategori 21/22/23"; 24 og 25 er interne/historiske typer
 export function tilDatakategori(hovedkategori?: string | null): Datakategori {
   switch (hovedkategori) {
     case "Kategori 21":

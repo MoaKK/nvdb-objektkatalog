@@ -10,7 +10,6 @@ export const VIKTIGHET_TEKST: Record<string, string> = {
   IKKE_SATT: "Ikke satt",
 };
 
-
 export const SKJULTE_EGENSKAPSTYPER = new Set(["Liste"]);
 
 export const tillattVerdiSchema = z.object({
@@ -24,7 +23,6 @@ export const egenskapstypeSchema = z.object({
   id: z.number(),
   navn: z.string(),
   beskrivelse: z.string().nullish(),
-  // Forklaring fra NVDB, f.eks. når en betinget egenskap er påkrevd
   veiledning: z.string().nullish(),
   egenskapstype: z.string(),
   viktighet: z
@@ -33,15 +31,13 @@ export const egenskapstypeSchema = z.object({
     .transform((v) => v ?? "IKKE_SATT"),
   sorteringsnummer: z.number().nullish(),
   tillatte_verdier: z.array(tillattVerdiSchema).nullish(),
-  // Bare satt for geometri-egenskaper. Nøyaktighetskrav er i meter.
   geometritype: z.string().nullish(),
   dimensjoner: z.number().nullish(),
   nøyaktighetskrav_grunnriss: z.number().nullish(),
   nøyaktighetskrav_høyde: z.number().nullish(),
 });
 
-
-export const relasjonSchema = z.object({
+const relasjonObjektSchema = z.object({
   id: z.number(),
   minimalt_antall_verdier: z.number().nullish(),
   maksimalt_antall_verdier: z.number().nullish(),
@@ -55,13 +51,25 @@ export const relasjonSchema = z.object({
   }),
 });
 
+function pakkInnRelasjon(verdi: unknown) {
+  if (verdi && typeof verdi === "object" && !("innhold" in verdi) && "type" in verdi) {
+    const r = verdi as Record<string, unknown>;
+    return {
+      id: r.id,
+      innhold: { relasjonstype: r.relasjonstype, innenfor_mor: r.innenfor_mor, type: r.type },
+    };
+  }
+  return verdi;
+}
+
+export const relasjonSchema = z.preprocess(pakkInnRelasjon, relasjonObjektSchema);
+
 const vegobjekttypeBaseSchema = z.object({
   id: z.number(),
   navn: z.string(),
   hovedkategori: z.string().nullish(),
   status: z.string().nullish(),
 });
-
 
 export const vegobjekttypeIndeksSchema = vegobjekttypeBaseSchema
   .extend({
@@ -119,7 +127,6 @@ export const vegobjekttypekategoriSchema = z.object({
   sorteringsnummer: z.number().nullish(),
 });
 
-// Relasjon beriket av serveren med om den relaterte typen finnes i katalogen
 export type RelasjonMedStatus = Relasjon & { finnes: boolean };
 
 export type VegobjekttypeDetaljer = Omit<VegobjekttypeDetail, "relasjonstyper"> & {

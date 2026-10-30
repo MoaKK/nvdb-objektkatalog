@@ -1,7 +1,6 @@
 import { loadEnvConfig } from "@next/env";
 import { defineConfig } from "drizzle-kit";
 
-// Leser .env.local på samme måte som Next.js, så DATABASE_URL aldri står i koden
 loadEnvConfig(process.cwd());
 
 if (!process.env.DATABASE_URL) {

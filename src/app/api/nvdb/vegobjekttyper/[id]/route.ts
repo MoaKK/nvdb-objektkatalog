@@ -3,7 +3,6 @@ import { z } from "zod";
 import { hentVegobjekttypeMedRelasjoner } from "@/lib/nvdb/client";
 import { feilrespons } from "@/lib/nvdb/feil";
 
-// Kun rene sifre godtas, så ingen andre verdier kan smugles videre til NVDB
 const idSchema = z.string().regex(/^\d{1,7}$/).transform(Number);
 
 export async function GET(

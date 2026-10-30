@@ -22,7 +22,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <SidebarProvider style={{ "--sidebar-width": "22rem" } as React.CSSProperties}>
             <AppSidebar />
-            {/* min-w-0 hindrer at brede tabeller gjør hele siden bredere enn skjermen */}
             <SidebarInset className="min-w-0">
               <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3 md:px-4">
                 <SidebarTrigger variant="outline" size="icon-lg" title="Vis eller skjul menyen" />

@@ -22,36 +22,30 @@ import { authClient } from "@/lib/auth-client";
 
 export function DetaljerSkjelett() {
   return (
-    <div className="flex flex-col gap-4 md:gap-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-6">
       <Skeleton className="h-36 w-full" />
       <Skeleton className="h-96 w-full" />
     </div>
   );
 }
 
-// Brytere som huskes per nettleser. Bare visningsinnstillinger, ingen data.
 const VIS_BESKRIVELSE_NOKKEL = "nvdb-vis-nvdb-beskrivelse";
 const VIS_KRAV_NOKKEL = "nvdb-vis-nvdb-krav";
 
 function useLagretBryter(nokkel: string) {
   const [paa, setPaa] = useState(false);
 
-  // Leses etter første render, ellers blir HTML fra server og klient ulik
   useEffect(() => {
     try {
       setPaa(localStorage.getItem(nokkel) === "1");
-    } catch {
-      /* lagring er valgfri */
-    }
+    } catch {}
   }, [nokkel]);
 
   function endre(ny: boolean) {
     setPaa(ny);
     try {
       localStorage.setItem(nokkel, ny ? "1" : "0");
-    } catch {
-      /* lagring er valgfri */
-    }
+    } catch {}
   }
 
   return [paa, endre] as const;
@@ -61,10 +55,8 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   const [visNvdbBeskrivelse, setVisNvdbBeskrivelse] = useLagretBryter(VIS_BESKRIVELSE_NOKKEL);
   const [visNvdbKrav, setVisNvdbKrav] = useLagretBryter(VIS_KRAV_NOKKEL);
   const type = useVegobjekttype(id);
-  // Vegavdelingens egne krav fra databasen, hentes parallelt med NVDB-dataene
   const krav = useKrav(id);
   const lagre = useLagreKrav(id);
-  // Bare admin-kontoer får sesjon, så en sesjon betyr admin. Serveren sjekker likevel ved lagring.
   const { data: sesjon } = authClient.useSession();
   const kanRedigere = !!sesjon && krav.isSuccess;
 
@@ -82,7 +74,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   const t = type.data;
 
   return (
-    <div className="flex flex-col gap-4 md:gap-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-6">
       {krav.isError && (
         <Alert variant="destructive">
           <AlertTitle>Kunne ikke hente vegavdelingens krav</AlertTitle>

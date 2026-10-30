@@ -25,9 +25,7 @@ interface Props {
   grupper: Sokegrupper;
   apne: string[];
   onApneChange: (apne: string[]) => void;
-  // Hvilke kategorier som vises (ved søk skjules de uten treff)
   kategorier?: typeof DATAKATEGORIER;
-  // Kalles når brukeren lukker en kategori, så sidemenyen kan holde plassen
   onLukket?: (kategoriId: string) => void;
 }
 
@@ -61,7 +59,6 @@ export function KategoriListe({
           key={kategori.id}
           value={kategori.id}
           data-kategori={kategori.id}
-          // Overskriften (h3) blir liggende øverst mens man scroller gjennom kategorien
           className="[&>h3]:sticky [&>h3]:top-0 [&>h3]:z-10 [&>h3]:bg-sidebar"
         >
           <AccordionTrigger
@@ -78,7 +75,6 @@ export function KategoriListe({
               </Badge>
             </span>
           </AccordionTrigger>
-          {/* AccordionContent understreker lenker som standard, det vil vi ikke i menyen */}
           <AccordionContent className="pb-2 [&_a]:no-underline">
             <SidebarSeparator className="mx-0 mb-1" />
             <SidebarGroupLabel className="justify-between underline underline-offset-4">
@@ -94,7 +90,6 @@ export function KategoriListe({
                       render={<Link href={href} prefetch={false} />}
                       isActive={pathname === href}
                       title={`${type.navn} (nummer ${type.id})${treff ? `. ${treff}` : ""}`}
-                      // Lukk uttrekkspanelet på mobil/nettbrett så man ser objektet med en gang
                       onClick={() => {
                         if (isMobile) setOpenMobile(false);
                       }}

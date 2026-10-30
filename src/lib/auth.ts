@@ -18,38 +18,29 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, { provider: "pg", schema: authSchema }),
 
-  // Bare Google, ingen passord lagres hos oss
   emailAndPassword: { enabled: false },
   socialProviders: {
     google: {
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      // La brukeren velge konto i stedet for å bruke den som tilfeldigvis er innlogget
       prompt: "select_account",
     },
   },
 
-  // Tokens fra Google krypteres før de lagres i databasen
   account: { encryptOAuthTokens: true },
 
   session: {
-    expiresIn: 60 * 60 * 8, // en arbeidsdag
-    updateAge: 60 * 60, // fornyes maks én gang i timen ved bruk
-    // Sesjonen bufres i en kryptert cookie (JWE) så ikke hvert kall går mot databasen
+    expiresIn: 60 * 60 * 8,
+    updateAge: 60 * 60,
     cookieCache: { enabled: true, maxAge: 5 * 60, strategy: "jwe" },
   },
 
   advanced: {
-    // Secure-cookies (og __Secure-prefiks) når siden kjører på https
     useSecureCookies: env.BETTER_AUTH_URL.startsWith("https://"),
-    // httpOnly: JavaScript i siden kan ikke lese cookien.
-    // sameSite lax: andre nettsteder kan ikke sende den med i skjema/fetch,
-    // men den overlever omdirigeringen tilbake fra Google.
     defaultCookieAttributes: { httpOnly: true, sameSite: "lax" },
   },
 
   databaseHooks: {
-    // Bare e-poster på admin-listen får opprettet bruker
     user: {
       create: {
         before: async (user) => {
@@ -57,7 +48,6 @@ export const auth = betterAuth({
         },
       },
     },
-    // ... og bare de får sesjon, også om de senere fjernes fra listen
     session: {
       create: {
         before: async (session) => {
@@ -72,6 +62,5 @@ export const auth = betterAuth({
     },
   },
 
-  // Lar server actions sette cookies (trengs senere for lagring)
   plugins: [nextCookies()],
 });

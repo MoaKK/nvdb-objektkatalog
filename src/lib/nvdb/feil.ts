@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { NvdbError } from "@/lib/nvdb/client";
 
-// Logger detaljer på serveren, men sender bare generelle meldinger til klienten
 export function feilrespons(error: unknown) {
   console.error(error);
   if (error instanceof NvdbError && error.status === 404) {

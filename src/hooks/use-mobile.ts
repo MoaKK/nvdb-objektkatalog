@@ -1,6 +1,5 @@
 import * as React from "react"
 
-// Under 1024 px (mobil og iPad stående) brukes sidemenyen som uttrekkspanel
 const MOBILE_BREAKPOINT = 1024
 
 export function useIsMobile() {

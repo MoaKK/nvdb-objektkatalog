@@ -34,7 +34,6 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
 
   const kategoriListe = (kategorier.data ?? []).filter((k) => k.id !== ALLE_KATEGORIER_ID);
 
-  // Base UI Select trenger en oppslagsliste for å vise navn i stedet for id
   const kategoriNavn: Record<string, string> = {
     alle: "Alle kategorier",
     ...Object.fromEntries(kategoriListe.map((k) => [String(k.id), k.navn])),

@@ -31,7 +31,6 @@ import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import { STANDARD_SOKEVALG, sokVegobjekttyper, type Sokevalg } from "@/lib/nvdb/sok";
 import { lagreScroll, lagreTilstand, lesScroll, lesTilstand } from "@/lib/sidemeny-lagring";
 
-// Faste bredder: SidebarMenuSkeleton bruker Math.random(), som cacheComponents ikke tillater
 const SKJELETT_BREDDER = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5", "w-2/3", "w-1/2", "w-3/4"];
 const VIS_TIL_TOPPEN_ETTER = 400;
 
@@ -46,14 +45,12 @@ export function AppSidebar() {
   const utsattValg = useDeferredValue(valg);
   const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
-  // Kategorier brukeren har lukket under et søk. Nullstilles når søket endres.
   const sokNokkel = `${utsattValg.tekst}|${utsattValg.kategoriId}|${utsattValg.iEgenskaper}|${utsattValg.iVerdier}`;
   const [lukketISok, setLukketISok] = useState<{ nokkel: string; ider: string[] }>({
     nokkel: "",
     ider: [],
   });
 
-  // Leses etter første render, ellers blir HTML fra server og klient ulik
   useEffect(() => {
     const lagret = lesTilstand();
     if (lagret) {
@@ -67,7 +64,6 @@ export function AppSidebar() {
     if (hentetLagret) lagreTilstand({ valg, apne });
   }, [valg, apne, hentetLagret]);
 
-  // Scroll tilbake når lista er lastet og kategoriene har rukket å åpne seg
   useEffect(() => {
     if (!hentetLagret || !indeks.data || scrollGjenopprettet.current) return;
     const top = lesScroll();
@@ -82,8 +78,6 @@ export function AppSidebar() {
     return () => clearTimeout(timer);
   }, [hentetLagret, indeks.data]);
 
-  // På mobil/nettbrett bygges uttrekkspanelet på nytt hver gang det åpnes,
-  // så scrollposisjonen settes tilbake når det åpnes
   useEffect(() => {
     if (!isMobile || !openMobile) return;
     const timer = setTimeout(() => {
@@ -95,12 +89,9 @@ export function AppSidebar() {
   function vedScroll(e: UIEvent<HTMLDivElement>) {
     const top = e.currentTarget.scrollTop;
     setVisTilToppen(top > VIS_TIL_TOPPEN_ETTER);
-    // Ikke overskriv lagret posisjon før den er gjenopprettet
     if (scrollGjenopprettet.current) lagreScroll(top);
   }
 
-  // Lukkes en kategori fra den fastlåste overskriften, flyttes visningen til
-  // starten av kategorien så man ikke mister plassen når lista krymper
   function holdPlassVedLukking(kategoriId: string) {
     const container = innholdRef.current;
     const element = container?.querySelector<HTMLElement>(`[data-kategori="${kategoriId}"]`);

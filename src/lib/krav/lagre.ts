@@ -11,21 +11,16 @@ import { SKJULTE_EGENSKAPSTYPER } from "@/lib/nvdb/schemas";
 
 export type Lagreresultat = { ok: true } | { ok: false; feil: string };
 
-// Server action: kalles fra nettleseren, men alt under kjører bare på serveren.
-// Next.js avviser kall som ikke kommer fra vårt eget nettsted (CSRF-vern).
 export async function lagreKravendring(input: unknown): Promise<Lagreresultat> {
-  // 1. Innlogget, og e-posten står på admin-listen akkurat nå
   const sesjon = await auth.api.getSession({ headers: await headers() });
   if (!sesjon || !erAdminEpost(sesjon.user.email)) {
     return { ok: false, feil: "Du må være innlogget som admin." };
   }
 
-  // 2. Bare forventede felt med riktige typer (blokkerer felt-manipulering)
   const parsed = kravendringSchema.safeParse(input);
   if (!parsed.success) return { ok: false, feil: "Ugyldige data." };
   const endring = parsed.data;
 
-  // 3. Vegobjekttypen må finnes i NVDB
   let type;
   try {
     type = await hentVegobjekttype(endring.vegobjekttypeId);
@@ -47,7 +42,6 @@ export async function lagreKravendring(input: unknown): Promise<Lagreresultat> {
       return { ok: true };
     }
 
-    // 4. Egenskapen må høre til vegobjekttypen, og være en som vises i tabellen
     const egenskap = type.egenskapstyper.find((e) => e.id === endring.egenskapstypeId);
     if (
       !egenskap ||
@@ -77,7 +71,6 @@ export async function lagreKravendring(input: unknown): Promise<Lagreresultat> {
       });
     return { ok: true };
   } catch (error) {
-    // Detaljer bare i serverloggen
     console.error(error);
     return { ok: false, feil: "Kunne ikke lagre. Prøv igjen." };
   }

@@ -10,7 +10,6 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",
-  // Alle NVDB-kall går via egne API-ruter, så nettleseren trenger bare 'self'
   "connect-src 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",

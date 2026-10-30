@@ -1,12 +1,10 @@
 import { z } from "zod";
 import type { Kravdata } from "@/lib/krav/typer";
 
-// Delt mellom klient og server. Serveren validerer alltid på nytt.
 export const BESKRIVELSE_MAKS = 1000;
 
 const id = z.number().int().positive().max(9_999_999);
 
-// strictObject: ukjente felt avvises, så ingenting ekstra kan smugles inn
 export const kravendringSchema = z.discriminatedUnion("type", [
   z.strictObject({
     type: z.literal("kreves"),
@@ -32,7 +30,6 @@ export const kravendringSchema = z.discriminatedUnion("type", [
 
 export type Kravendring = z.input<typeof kravendringSchema>;
 
-// Brukes til å vise endringen med en gang, før serveren har svart
 export function anvendEndring(data: Kravdata | undefined, endring: Kravendring): Kravdata {
   const d = data ?? { fkb: false, egenskaper: {} };
   if (endring.type === "fkb") return { ...d, fkb: endring.fkb };

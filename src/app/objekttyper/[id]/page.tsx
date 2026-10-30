@@ -19,7 +19,6 @@ export default function ObjekttypePage({ params }: Props) {
 
 async function Innhold({ params }: Props) {
   const { id } = await params;
-  // Bare tall godtas; alt annet gir 404 før noe hentes
   if (!/^\d{1,7}$/.test(id)) notFound();
   return <ObjekttypeDetaljer id={Number(id)} />;
 }

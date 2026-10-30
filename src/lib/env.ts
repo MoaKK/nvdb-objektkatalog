@@ -1,7 +1,6 @@
 import "server-only";
 import { z } from "zod";
 
-// "a@x.no, b@y.no" -> ["a@x.no", "b@y.no"], og hver adresse må være gyldig
 const epostliste = z
   .string()
   .transform((s) =>
@@ -15,13 +14,10 @@ const epostliste = z
 const envSchema = z.object({
   NVDB_API_BASE: z.url().default("https://nvdbapiles.atlas.vegvesen.no"),
   NVDB_X_CLIENT: z.string().min(3).max(100),
-  // Hemmelig: inneholder databasepassordet. Skal bare ligge i .env.local / hostingens miljøvariabler.
   DATABASE_URL: z.string().regex(/^postgres(ql)?:\/\//, "DATABASE_URL må være en Postgres-URL"),
-  // Innlogging med Google (hemmelige verdier)
   GOOGLE_CLIENT_ID: z.string().min(10),
   GOOGLE_CLIENT_SECRET: z.string().min(10),
   BETTER_AUTH_URL: z.url(),
-  // Nøkkel for signering og kryptering av sesjoner og tokens
   BETTER_AUTH_SECRET: z.string().min(32, "BETTER_AUTH_SECRET må være minst 32 tegn"),
   ADMIN_EMAILS: epostliste,
 });

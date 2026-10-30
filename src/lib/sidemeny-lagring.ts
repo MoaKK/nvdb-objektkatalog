@@ -34,9 +34,7 @@ export function lesTilstand(): SidemenyTilstand | null {
 export function lagreTilstand(tilstand: SidemenyTilstand) {
   try {
     sessionStorage.setItem(TILSTAND_NOKKEL, JSON.stringify(tilstand));
-  } catch {
-    /* lagring er valgfri, f.eks. blokkert i privat modus */
-  }
+  } catch {}
 }
 
 export function lesScroll(): number {
@@ -51,7 +49,5 @@ export function lesScroll(): number {
 export function lagreScroll(top: number) {
   try {
     sessionStorage.setItem(SCROLL_NOKKEL, String(Math.round(top)));
-  } catch {
-    /* lagring er valgfri */
-  }
+  } catch {}
 }

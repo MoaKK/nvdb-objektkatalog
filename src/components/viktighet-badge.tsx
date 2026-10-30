@@ -16,12 +16,9 @@ const VARIANT = {
 
 interface Props {
   viktighet: string;
-  // Veiledning fra NVDB, f.eks. "Påkrevd der ny fartsgrense avviker fra ..."
   forklaring?: string | null;
 }
 
-// Viser NVDB sin viktighet med farge; "ikke satt" og historisk vises ikke.
-// Finnes det en forklaring, åpnes den ved hover på PC og ved trykk på mobil/nettbrett.
 export function ViktighetBadge({ viktighet, forklaring }: Props) {
   const variant = VARIANT[viktighet as keyof typeof VARIANT];
   if (!variant) return null;

@@ -25,7 +25,6 @@ export function useKrav(vegobjekttypeId: number) {
   });
 }
 
-// Lagrer en endring. Vises med en gang, og rulles tilbake hvis serveren sier nei.
 export function useLagreKrav(vegobjekttypeId: number) {
   const queryClient = useQueryClient();
   const key = kravKey(vegobjekttypeId);
