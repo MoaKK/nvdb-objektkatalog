@@ -15,6 +15,13 @@
       "when": 1793315370128,
       "tag": "0001_fantastic_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793315999877,
+      "tag": "0002_fearless_mother_askani",
+      "breakpoints": true
     }
   ]
 }

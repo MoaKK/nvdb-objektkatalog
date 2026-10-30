@@ -56,10 +56,16 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
           placeholder="Søk på navn eller id"
           maxLength={100}
           aria-label="Søk etter vegobjekttyper"
+          title="Søk på navn eller nummer"
         />
         {valg.tekst && (
           <InputGroupAddon align="inline-end">
-            <InputGroupButton size="icon-xs" onClick={() => sett("tekst", "")} aria-label="Tøm søk">
+            <InputGroupButton
+              size="icon-xs"
+              onClick={() => sett("tekst", "")}
+              aria-label="Tøm søk"
+              title="Tøm søk"
+            >
               <X />
             </InputGroupButton>
           </InputGroupAddon>
@@ -68,6 +74,7 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
 
       <Collapsible>
         <CollapsibleTrigger
+          title="Vis eller skjul filtre"
           render={<Button variant="ghost" size="sm" className="group w-full justify-between" />}
         >
           Filtre
@@ -77,7 +84,7 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
           <FieldGroup className="gap-4 pt-2">
             <FieldSet className="gap-2">
               <FieldLegend variant="label">Søk også i</FieldLegend>
-              <Field orientation="horizontal">
+              <Field orientation="horizontal" title="Søk også i navnene på egenskapstypene">
                 <Checkbox
                   id="sok-egenskaper"
                   checked={valg.iEgenskaper}
@@ -87,7 +94,7 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
                   Egenskapstyper
                 </FieldLabel>
               </Field>
-              <Field orientation="horizontal">
+              <Field orientation="horizontal" title="Søk også i tillatte verdier, f.eks. materialtyper">
                 <Checkbox
                   id="sok-verdier"
                   checked={valg.iVerdier}
@@ -108,7 +115,12 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
                   sett("kategoriId", v === null || v === "alle" ? null : Number(v))
                 }
               >
-                <SelectTrigger id="vegobjekttypekategori" size="sm" className="w-full">
+                <SelectTrigger
+                  id="vegobjekttypekategori"
+                  size="sm"
+                  className="w-full"
+                  title="Vis bare vegobjekttyper i en bestemt kategori"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -129,13 +141,13 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
                 onValueChange={(v) => sett("sortering", v as Sokevalg["sortering"])}
                 className="flex gap-4"
               >
-                <Field orientation="horizontal">
+                <Field orientation="horizontal" title="Sorter alfabetisk etter navn">
                   <RadioGroupItem value="navn" id="sorter-navn" />
                   <FieldLabel htmlFor="sorter-navn" className="font-normal">
                     Navn
                   </FieldLabel>
                 </Field>
-                <Field orientation="horizontal">
+                <Field orientation="horizontal" title="Sorter etter nummer i NVDB">
                   <RadioGroupItem value="nummer" id="sorter-nummer" />
                   <FieldLabel htmlFor="sorter-nummer" className="font-normal">
                     Nummer

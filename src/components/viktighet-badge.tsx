@@ -11,6 +11,7 @@ const VARIANT = {
   PÅKREVD_IKKE_ABSOLUTT: "pakrevd",
   BETINGET: "betinget",
   OPSJONELL: "opsjonell",
+  MINDRE_VIKTIG: "mindre",
 } as const;
 
 interface Props {
@@ -19,14 +20,20 @@ interface Props {
   forklaring?: string | null;
 }
 
-// Viser NVDB sin viktighet med farge; andre nivåer (ikke satt, mindre viktig) vises ikke.
+// Viser NVDB sin viktighet med farge; "ikke satt" og historisk vises ikke.
 // Finnes det en forklaring, åpnes den ved hover på PC og ved trykk på mobil/nettbrett.
 export function ViktighetBadge({ viktighet, forklaring }: Props) {
   const variant = VARIANT[viktighet as keyof typeof VARIANT];
   if (!variant) return null;
   const tekst = VIKTIGHET_TEKST[viktighet];
 
-  if (!forklaring) return <Badge variant={variant}>{tekst}</Badge>;
+  if (!forklaring) {
+    return (
+      <Badge variant={variant} title={`Krav i NVDB: ${tekst}`}>
+        {tekst}
+      </Badge>
+    );
+  }
 
   return (
     <Popover>

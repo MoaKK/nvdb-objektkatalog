@@ -23,6 +23,7 @@ const badgeVariants = cva(
         pakrevd: "bg-viktighet-pakrevd text-viktighet-pakrevd-foreground",
         betinget: "bg-viktighet-betinget text-viktighet-betinget-foreground",
         opsjonell: "bg-viktighet-opsjonell text-viktighet-opsjonell-foreground",
+        mindre: "bg-viktighet-mindre text-viktighet-mindre-foreground",
       },
     },
     defaultVariants: {

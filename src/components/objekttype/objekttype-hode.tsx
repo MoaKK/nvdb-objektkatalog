@@ -48,9 +48,11 @@ interface Props {
   type: VegobjekttypeDetaljer;
   // Fra vegavdelingens database, ikke NVDB
   fkb?: boolean;
+  kanRedigere?: boolean;
+  onFkb?: (fkb: boolean) => void;
 }
 
-export function ObjekttypeHode({ type, fkb = false }: Props) {
+export function ObjekttypeHode({ type, fkb = false, kanRedigere = false, onFkb }: Props) {
   const geometrier = type.egenskapstyper
     .filter((e) => e.egenskapstype === "Geometri" && e.viktighet !== "HISTORISK")
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
@@ -60,7 +62,12 @@ export function ObjekttypeHode({ type, fkb = false }: Props) {
       <CardHeader>
         <CardTitle className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xl md:text-2xl">
           {type.navn}
-          <span className="font-mono text-lg text-muted-foreground md:text-xl">{type.id}</span>
+          <span
+            className="font-mono text-lg text-muted-foreground md:text-xl"
+            title="Vegobjekttypens nummer i NVDB"
+          >
+            {type.id}
+          </span>
         </CardTitle>
         {type.beskrivelse && (
           <CardDescription className="text-sm md:text-base">{type.beskrivelse}</CardDescription>
@@ -70,13 +77,31 @@ export function ObjekttypeHode({ type, fkb = false }: Props) {
         <span className="flex flex-wrap items-center gap-2">
           <span className="font-medium">Hovedkategori:</span>
           <DatakategoriBadge hovedkategori={type.hovedkategori} />
-          {type.må_ha_mor && <Badge variant="outline">Må ha morobjekt</Badge>}
+          {type.må_ha_mor && (
+            <Badge variant="outline" title="Objektet må knyttes til et morobjekt i NVDB">
+              Må ha morobjekt
+            </Badge>
+          )}
         </span>
         {type.veiledning && <p className="text-muted-foreground">{type.veiledning}</p>}
       <Separator />
 
-        <Field orientation="horizontal">
-          <Checkbox id="fkb" disabled checked={fkb} />
+        <Field
+          orientation="horizontal"
+          title={
+            kanRedigere
+              ? "Marker om vegobjekttypen skal registreres i FKB"
+              : fkb
+                ? "Skal registreres i FKB"
+                : "Skal ikke registreres i FKB"
+          }
+        >
+          <Checkbox
+            id="fkb"
+            disabled={!kanRedigere}
+            checked={fkb}
+            onCheckedChange={(c) => onFkb?.(c === true)}
+          />
           <FieldLabel htmlFor="fkb" className="font-normal">
             Skal registreres i FKB
           </FieldLabel>

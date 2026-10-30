@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const typer = await hentSokeindeks();
     return NextResponse.json(typer, {
-      headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" },
+      headers: { "Cache-Control": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400" },
     });
   } catch (error) {
     return feilrespons(error);

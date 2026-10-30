@@ -23,7 +23,12 @@ export default function NotFound() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button variant="outline" render={<Link href="/" />} nativeButton={false}>
+        <Button
+          variant="outline"
+          render={<Link href="/" />}
+          nativeButton={false}
+          title="Gå til forsiden"
+        >
           Til forsiden
         </Button>
       </EmptyContent>

@@ -51,6 +51,7 @@ export function RelasjonTabell({ relasjoner, tomTekst }: Props) {
                     href={`/objekttyper/${id}`}
                     prefetch={false}
                     className="font-medium underline-offset-4 hover:underline"
+                    title={`Gå til ${visningsnavn} (nummer ${id})`}
                   >
                     {visningsnavn}
                   </Link>
