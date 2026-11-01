@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { DatakategoriBadge } from "@/components/datakategori-badge";
+import { BeskrivelseRedigerer } from "@/components/objekttype/beskrivelse-redigerer";
 import { ViktighetBadge } from "@/components/viktighet-badge";
 import type { Egenskapstype, VegobjekttypeDetaljer } from "@/lib/nvdb/schemas";
 
@@ -52,11 +53,20 @@ function Innmaling({ geometri }: { geometri: Egenskapstype }) {
 interface Props {
   type: VegobjekttypeDetaljer;
   fkb?: boolean;
+  fkbKommentar?: string | null;
   kanRedigere?: boolean;
   onFkb?: (fkb: boolean) => void;
+  onFkbKommentar?: (kommentar: string) => Promise<void>;
 }
 
-export function ObjekttypeHode({ type, fkb = false, kanRedigere = false, onFkb }: Props) {
+export function ObjekttypeHode({
+  type,
+  fkb = false,
+  fkbKommentar = null,
+  kanRedigere = false,
+  onFkb,
+  onFkbKommentar,
+}: Props) {
   const geometrier = type.egenskapstyper
     .filter((e) => e.egenskapstype === "Geometri" && e.viktighet !== "HISTORISK")
     .sort(
@@ -94,26 +104,38 @@ export function ObjekttypeHode({ type, fkb = false, kanRedigere = false, onFkb }
         {type.veiledning && <p className="text-muted-foreground">{type.veiledning}</p>}
       <Separator />
 
-        <Field
-          orientation="horizontal"
-          title={
-            kanRedigere
-              ? "Marker om vegobjekttypen skal registreres i FKB"
-              : fkb
-                ? "Skal registreres i FKB"
-                : "Skal ikke registreres i FKB"
-          }
-        >
-          <Checkbox
-            id="fkb"
-            disabled={!kanRedigere}
-            checked={fkb}
-            onCheckedChange={(c) => onFkb?.(c === true)}
-          />
-          <FieldLabel htmlFor="fkb" className="font-normal">
-            Skal registreres i FKB
-          </FieldLabel>
-        </Field>
+        <span className="flex flex-col gap-2">
+          <Field
+            orientation="horizontal"
+            title={
+              kanRedigere
+                ? "Marker om vegobjekttypen skal registreres i FKB"
+                : fkb
+                  ? "Skal registreres i FKB"
+                  : "Skal ikke registreres i FKB"
+            }
+          >
+            <Checkbox
+              id="fkb"
+              disabled={!kanRedigere}
+              checked={fkb}
+              onCheckedChange={(c) => onFkb?.(c === true)}
+            />
+            <FieldLabel htmlFor="fkb" className="font-normal">
+              Skal registreres i FKB
+            </FieldLabel>
+          </Field>
+          {(fkbKommentar || kanRedigere) && (
+            <span className="block pl-6">
+              <BeskrivelseRedigerer
+                verdi={fkbKommentar}
+                navn="FKB"
+                kanRedigere={kanRedigere}
+                onLagre={onFkbKommentar ?? (() => Promise.resolve())}
+              />
+          </span>
+        )}
+        </span>
 
         {geometrier.length > 0 && (
           <>

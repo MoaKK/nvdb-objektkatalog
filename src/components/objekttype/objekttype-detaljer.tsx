@@ -111,8 +111,12 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
       <ObjekttypeHode
         type={t}
         fkb={krav.data?.fkb ?? false}
+        fkbKommentar={krav.data?.fkbKommentar ?? null}
         kanRedigere={kanRedigere}
         onFkb={(fkb) => lagre.mutate({ type: "fkb", vegobjekttypeId: id, fkb })}
+        onFkbKommentar={async (kommentar) => {
+          await lagre.mutateAsync({ type: "fkbKommentar", vegobjekttypeId: id, kommentar });
+        }}
       />
 
       <Card>

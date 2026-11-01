@@ -31,13 +31,17 @@ export async function lagreKravendring(input: unknown): Promise<Lagreresultat> {
   const brukerId = sesjon.user.id;
 
   try {
-    if (endring.type === "fkb") {
+    if (endring.type === "fkb" || endring.type === "fkbKommentar") {
+      const objektfelt =
+        endring.type === "fkb"
+          ? { fkb: endring.fkb }
+          : { fkbKommentar: endring.kommentar || null };
       await db
         .insert(objekttypekrav)
-        .values({ vegobjekttypeId: endring.vegobjekttypeId, fkb: endring.fkb, oppdatertAv: brukerId })
+        .values({ vegobjekttypeId: endring.vegobjekttypeId, ...objektfelt, oppdatertAv: brukerId })
         .onConflictDoUpdate({
           target: objekttypekrav.vegobjekttypeId,
-          set: { fkb: endring.fkb, oppdatert: sql`now()`, oppdatertAv: brukerId },
+          set: { ...objektfelt, oppdatert: sql`now()`, oppdatertAv: brukerId },
         });
       return { ok: true };
     }
