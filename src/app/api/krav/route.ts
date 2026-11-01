@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { hentTyperMedKrav } from "@/lib/krav/oversikt";
 
 export async function GET() {
+  await connection();
   try {
     const ider = await hentTyperMedKrav();
     return NextResponse.json(ider, { headers: { "Cache-Control": "no-store" } });
