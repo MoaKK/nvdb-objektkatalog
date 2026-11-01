@@ -21,6 +21,7 @@ interface Props {
   kanRedigere?: boolean;
   visNvdbBeskrivelse?: boolean;
   visNvdbKrav?: boolean;
+  visAlleEgenskaper?: boolean;
   onKreves?: (egenskapstypeId: number, kreves: boolean) => void;
   onBeskrivelse?: (egenskapstypeId: number, beskrivelse: string) => Promise<void>;
 }
@@ -31,6 +32,7 @@ export function EgenskapTabell({
   kanRedigere = false,
   visNvdbBeskrivelse = false,
   visNvdbKrav = false,
+  visAlleEgenskaper = false,
   onKreves,
   onBeskrivelse,
 }: Props) {
@@ -43,7 +45,9 @@ export function EgenskapTabell({
         !SKJULTE_EGENSKAPSTYPER.has(e.egenskapstype) &&
         e.egenskapstype !== "Geometri" &&
         e.viktighet !== "HISTORISK" &&
-        (kanRedigere || PAKREVD.has(e.viktighet) || krav?.[String(e.id)]?.kreves === true),
+        (kanRedigere ||
+          visAlleEgenskaper ||
+          PAKREVD.has(e.viktighet) || krav?.[String(e.id)]?.kreves === true),
     )
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
 
@@ -69,7 +73,9 @@ export function EgenskapTabell({
       <TableCaption className="text-left">
         {kanRedigere
           ? "Som admin ser du alle egenskaper. Andre ser bare de som er påkrevd i NVDB eller krysset av som krav til innlevering."
-          : "Viser egenskaper som er påkrevd i NVDB eller som geodata krever ved innlevering."}
+          : visAlleEgenskaper
+            ? "Viser alle egenskaper."
+            : "Viser egenskaper som er påkrevd i NVDB eller som geodata krever ved innlevering."}
       </TableCaption>
       <TableBody>
         {synlige.length === 0 && (
