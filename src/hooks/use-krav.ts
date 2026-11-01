@@ -6,6 +6,23 @@ import { lagreKravendring } from "@/lib/krav/lagre";
 import type { Kravdata } from "@/lib/krav/typer";
 
 export const kravKey = (vegobjekttypeId: number) => ["krav", vegobjekttypeId] as const;
+export const kravoversiktKey = ["kravoversikt"] as const;
+
+export function useTyperMedKrav(enabled = true) {
+  return useQuery({
+    queryKey: kravoversiktKey,
+    queryFn: async () => {
+      const res = await fetch("/api/krav", { headers: { Accept: "application/json" } });
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as { feil?: string } | null;
+        throw new Error(body?.feil ?? `Feil ${res.status}`);
+      }
+      return res.json() as Promise<number[]>;
+    },
+    enabled,
+    staleTime: 30_000,
+  });
+}
 
 export function useKrav(vegobjekttypeId: number) {
   return useQuery({
@@ -43,6 +60,9 @@ export function useLagreKrav(vegobjekttypeId: number) {
     onError: (_feil, _endring, kontekst) => {
       if (kontekst?.forrige) queryClient.setQueryData(key, kontekst.forrige);
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: key }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: key });
+      queryClient.invalidateQueries({ queryKey: kravoversiktKey });
+    },
   });
 }

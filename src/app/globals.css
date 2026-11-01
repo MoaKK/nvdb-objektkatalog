@@ -92,9 +92,9 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --viktighet-absolutt: oklch(0.936 0.032 17.717);
-  --viktighet-absolutt-foreground: oklch(0.505 0.213 27.518);
-  --viktighet-pakrevd: oklch(0.954 0.038 75.164);
-  --viktighet-pakrevd-foreground: oklch(0.47 0.157 37.304);
+  --viktighet-absolutt-foreground: oklch(43.73% 0.17898 28.409);
+  --viktighet-pakrevd: #f8d0bd;
+  --viktighet-pakrevd-foreground: #ca3701ea;
   --viktighet-betinget: oklch(0.973 0.071 103.193);
   --viktighet-betinget-foreground: oklch(0.476 0.114 61.907);
   --viktighet-opsjonell: oklch(0.962 0.044 156.743);
@@ -137,8 +137,8 @@
   --sidebar-ring: oklch(0.556 0 0);
   --viktighet-absolutt: oklch(0.258 0.092 26.042);
   --viktighet-absolutt-foreground: oklch(0.808 0.114 19.571);
-  --viktighet-pakrevd: oklch(0.266 0.079 36.259);
-  --viktighet-pakrevd-foreground: oklch(0.837 0.128 66.29);
+  --viktighet-pakrevd: #ff5f15;
+  --viktighet-pakrevd-foreground: #ffffff;
   --viktighet-betinget: oklch(0.286 0.066 53.813);
   --viktighet-betinget-foreground: oklch(0.905 0.182 98.111);
   --viktighet-opsjonell: oklch(0.266 0.065 152.934);

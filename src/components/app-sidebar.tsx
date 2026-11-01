@@ -27,9 +27,16 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { KategoriListe } from "@/components/sidebar/kategori-liste";
 import { ObjekttypeFiltre } from "@/components/sidebar/objekttype-filtre";
+import { useTyperMedKrav } from "@/hooks/use-krav";
 import { useSokeindeks } from "@/hooks/use-nvdb";
+import { authClient } from "@/lib/auth-client";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
-import { STANDARD_SOKEVALG, sokVegobjekttyper, type Sokevalg } from "@/lib/nvdb/sok";
+import {
+  STANDARD_SOKEVALG,
+  sokVegobjekttyper,
+  type Sokegrupper,
+  type Sokevalg,
+} from "@/lib/nvdb/sok";
 import { lagreScroll, lagreTilstand, lesScroll, lesTilstand } from "@/lib/sidemeny-lagring";
 
 const SKJELETT_BREDDER = ["w-3/4", "w-1/2", "w-2/3", "w-4/5", "w-3/5", "w-2/3", "w-1/2", "w-3/4"];
@@ -41,6 +48,9 @@ function ingenAbonnement() {
 
 export function AppSidebar() {
   const indeks = useSokeindeks();
+  const { data: sesjon, isPending: sesjonLaster } = authClient.useSession();
+  const begrenset = !sesjonLaster && !sesjon;
+  const medKrav = useTyperMedKrav(begrenset);
   const [valg, setValg] = useState<Sokevalg>(STANDARD_SOKEVALG);
   const [apne, setApne] = useState<string[]>([]);
   const [hentetLagret, setHentetLagret] = useState(false);
@@ -111,14 +121,23 @@ export function AppSidebar() {
     if (avstand < 0) container.scrollTop += avstand;
   }
 
-  const grupper = useMemo(
-    () => sokVegobjekttyper(indeks.data ?? [], utsattValg),
-    [indeks.data, utsattValg],
-  );
+  const grupper = useMemo(() => {
+    const alle = sokVegobjekttyper(indeks.data ?? [], utsattValg);
+    if (!begrenset) return alle;
+    const tillatte = new Set(medKrav.data ?? []);
+    return Object.fromEntries(
+      Object.entries(alle).map(([kategori, liste]) => [
+        kategori,
+        liste.filter((r) => tillatte.has(r.type.id)),
+      ]),
+    ) as Sokegrupper;
+  }, [indeks.data, utsattValg, begrenset, medKrav.data]);
 
+  const laster = indeks.isPending || sesjonLaster || (begrenset && medKrav.isPending);
+  const harFeil = indeks.isError || (begrenset && medKrav.isError);
   const filtrerer = utsattValg.tekst.trim().length > 0 || utsattValg.kategoriId !== null;
   const kategorierMedTreff = DATAKATEGORIER.filter((k) => grupper[k.id].length > 0);
-  const synligeKategorier = filtrerer ? kategorierMedTreff : DATAKATEGORIER;
+  const synligeKategorier = filtrerer || begrenset ? kategorierMedTreff : DATAKATEGORIER;
   const antallTreff = kategorierMedTreff.reduce((sum, k) => sum + grupper[k.id].length, 0);
 
   const lukketNa = lukketISok.nokkel === sokNokkel ? lukketISok.ider : [];
@@ -158,7 +177,7 @@ export function AppSidebar() {
 
       <SidebarContent ref={innholdRef} onScroll={vedScroll}>
         <SidebarGroup>
-          {indeks.isPending && (
+          {laster && !harFeil && (
             <SidebarMenu>
               {SKJELETT_BREDDER.map((bredde, i) => (
                 <SidebarMenuItem key={i} className="px-2 py-1.5">
@@ -174,13 +193,22 @@ export function AppSidebar() {
             </Alert>
           )}
 
-          {indeks.data &&
-            (antallTreff === 0 && filtrerer ? (
+          {!indeks.isError && begrenset && medKrav.isError && (
+            <Alert variant="destructive">
+              <AlertDescription>Kunne ikke hente hvilke objekttyper som har krav.</AlertDescription>
+            </Alert>
+          )}
+
+          {!laster &&
+            !harFeil &&
+            (antallTreff === 0 && (filtrerer || begrenset) ? (
               <Empty>
                 <EmptyHeader>
-                  <EmptyTitle>Ingen treff</EmptyTitle>
+                  <EmptyTitle>{filtrerer ? "Ingen treff" : "Ingen objekttyper ennå"}</EmptyTitle>
                   <EmptyDescription>
-                    Prøv et annet søkeord, eller søk også i egenskapstyper og tillatte verdier.
+                    {filtrerer
+                      ? "Prøv et annet søkeord, eller søk også i egenskapstyper og tillatte verdier."
+                      : "Geodata har ikke lagt inn registreringskrav for noen objekttyper ennå."}
                   </EmptyDescription>
                 </EmptyHeader>
               </Empty>

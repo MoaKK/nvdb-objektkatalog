@@ -31,6 +31,7 @@ export function DetaljerSkjelett() {
 
 const VIS_BESKRIVELSE_NOKKEL = "nvdb-vis-nvdb-beskrivelse";
 const VIS_KRAV_NOKKEL = "nvdb-vis-nvdb-krav";
+const VIS_ALLE_NOKKEL = "nvdb-vis-alle-egenskaper";
 const BRYTER_ENDRET = "nvdb-bryter-endret";
 
 const bryterIMinnet = new Map<string, boolean>();
@@ -73,6 +74,7 @@ function useLagretBryter(nokkel: string) {
 export function ObjekttypeDetaljer({ id }: { id: number }) {
   const [visNvdbBeskrivelse, setVisNvdbBeskrivelse] = useLagretBryter(VIS_BESKRIVELSE_NOKKEL);
   const [visNvdbKrav, setVisNvdbKrav] = useLagretBryter(VIS_KRAV_NOKKEL);
+  const [visAlleEgenskaper, setVisAlleEgenskaper] = useLagretBryter(VIS_ALLE_NOKKEL);
   const type = useVegobjekttype(id);
   const krav = useKrav(id);
   const lagre = useLagreKrav(id);
@@ -111,8 +113,12 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
       <ObjekttypeHode
         type={t}
         fkb={krav.data?.fkb ?? false}
+        fkbKommentar={krav.data?.fkbKommentar ?? null}
         kanRedigere={kanRedigere}
         onFkb={(fkb) => lagre.mutate({ type: "fkb", vegobjekttypeId: id, fkb })}
+        onFkbKommentar={async (kommentar) => {
+          await lagre.mutateAsync({ type: "fkbKommentar", vegobjekttypeId: id, kommentar });
+        }}
       />
 
       <Card>
@@ -140,6 +146,21 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
                   Vis NVDB beskrivelse
                 </FieldLabel>
               </Field>
+              {!kanRedigere && (
+                <Field
+                  orientation="horizontal"
+                  title="Vis alle egenskaper, også de som ikke er påkrevd eller krysset av"
+                >
+                  <Switch
+                    id="vis-alle-egenskaper"
+                    checked={visAlleEgenskaper}
+                    onCheckedChange={(checked) => setVisAlleEgenskaper(checked)}
+                  />
+                  <FieldLabel htmlFor="vis-alle-egenskaper" className="font-normal whitespace-nowrap">
+                    Vis alle egenskaper
+                  </FieldLabel>
+                </Field>
+              )}
             </span>
           </CardAction>
           <CardDescription>
@@ -157,6 +178,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
             kanRedigere={kanRedigere}
             visNvdbBeskrivelse={visNvdbBeskrivelse}
             visNvdbKrav={visNvdbKrav}
+            visAlleEgenskaper={visAlleEgenskaper}
             onKreves={(egenskapstypeId, kreves) =>
               lagre.mutate({ type: "kreves", vegobjekttypeId: id, egenskapstypeId, kreves })
             }

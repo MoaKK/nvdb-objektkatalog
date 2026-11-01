@@ -2,6 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -12,12 +13,15 @@ import { ViktighetBadge } from "@/components/viktighet-badge";
 import type { Kravdata } from "@/lib/krav/typer";
 import { SKJULTE_EGENSKAPSTYPER, type Egenskapstype } from "@/lib/nvdb/schemas";
 
+const PAKREVD = new Set(["PÅKREVD_ABSOLUTT", "PÅKREVD_IKKE_ABSOLUTT"]);
+
 interface Props {
   egenskaper: Egenskapstype[];
   krav?: Kravdata["egenskaper"];
   kanRedigere?: boolean;
   visNvdbBeskrivelse?: boolean;
   visNvdbKrav?: boolean;
+  visAlleEgenskaper?: boolean;
   onKreves?: (egenskapstypeId: number, kreves: boolean) => void;
   onBeskrivelse?: (egenskapstypeId: number, beskrivelse: string) => Promise<void>;
 }
@@ -28,6 +32,7 @@ export function EgenskapTabell({
   kanRedigere = false,
   visNvdbBeskrivelse = false,
   visNvdbKrav = false,
+  visAlleEgenskaper = false,
   onKreves,
   onBeskrivelse,
 }: Props) {
@@ -39,7 +44,10 @@ export function EgenskapTabell({
       (e) =>
         !SKJULTE_EGENSKAPSTYPER.has(e.egenskapstype) &&
         e.egenskapstype !== "Geometri" &&
-        e.viktighet !== "HISTORISK",
+        e.viktighet !== "HISTORISK" &&
+        (kanRedigere ||
+          visAlleEgenskaper ||
+          PAKREVD.has(e.viktighet) || krav?.[String(e.id)]?.kreves === true),
     )
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
 
@@ -62,7 +70,21 @@ export function EgenskapTabell({
           </TableHead>
         </TableRow>
       </TableHeader>
+      <TableCaption className="text-left">
+        {kanRedigere
+          ? "Som admin ser du alle egenskaper. Andre ser bare de som er påkrevd i NVDB eller krysset av som krav til innlevering."
+          : visAlleEgenskaper
+            ? "Viser alle egenskaper."
+            : "Viser egenskaper som er påkrevd i NVDB eller som geodata krever ved innlevering."}
+      </TableCaption>
       <TableBody>
+        {synlige.length === 0 && (
+          <TableRow className="hover:bg-transparent">
+            <TableCell colSpan={3} className="py-6 text-center whitespace-normal text-muted-foreground">
+              Ingen egenskaper er påkrevd eller krysset av for denne objekttypen.
+            </TableCell>
+          </TableRow>
+        )}
         {synlige.map((e) => {
           const k = krav?.[String(e.id)];
           return (

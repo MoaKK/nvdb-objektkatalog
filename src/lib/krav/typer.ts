@@ -5,5 +5,6 @@ export interface Egenskapskrav {
 
 export interface Kravdata {
   fkb: boolean;
+  fkbKommentar: string | null;
   egenskaper: Record<string, Egenskapskrav>;
 }
