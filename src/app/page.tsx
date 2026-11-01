@@ -16,8 +16,21 @@ export default function Home() {
         </EmptyMedia>
         <EmptyTitle>Velg en vegobjekttype</EmptyTitle>
         <EmptyDescription>
-          Finn objektet i menyen til venstre for å se hvilke egenskaper som skal være med ved
-          innlevering, og hvordan det henger sammen med mor- og datterobjekter.
+          Her finner du vegobjekttyper fra NVDB sin datakatalog. For hvert objekt har geodata
+          krysset av for egenskapene vi ønsker at innmålere fyller ut og tar med når de leverer
+          data. Velg et objekt i menyen for å se kravene.
+        </EmptyDescription>
+        <EmptyDescription>
+          Hele datakatalogen finner du hos{" "}
+          <a
+            href="https://datakatalogen.atlas.vegvesen.no/"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Åpne NVDB sin datakatalog i en ny fane"
+          >
+            Statens vegvesen
+          </a>
+          .
         </EmptyDescription>
       </EmptyHeader>
     </Empty>
