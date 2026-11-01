@@ -169,7 +169,7 @@ export function AppSidebar() {
         >
           NVDB Objektkatalog
           <span className="block text-xs font-normal text-muted-foreground">
-            Registreringskrav fra geodata
+            Krav til innlevering av data
           </span>
         </Link>
         <ObjekttypeFiltre valg={valg} onChange={setValg} />
