@@ -67,13 +67,15 @@ export function ObjekttypeHode({
   onFkb,
   onFkbKommentar,
 }: Props) {
-  const geometrier = type.egenskapstyper
+  const alleGeometrier = type.egenskapstyper
     .filter((e) => e.egenskapstype === "Geometri" && e.viktighet !== "HISTORISK")
     .sort(
       (a, b) =>
         viktighetsrekkefolge(a.viktighet) - viktighetsrekkefolge(b.viktighet) ||
         (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0),
     );
+  const pakrevdeGeometrier = alleGeometrier.filter((g) => PAKREVD.has(g.viktighet));
+  const geometrier = pakrevdeGeometrier.length > 0 ? pakrevdeGeometrier : alleGeometrier;
 
   return (
     <Card>
