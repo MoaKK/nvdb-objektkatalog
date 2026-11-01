@@ -92,9 +92,9 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --viktighet-absolutt: oklch(0.936 0.032 17.717);
-  --viktighet-absolutt-foreground: oklch(0.505 0.213 27.518);
-  --viktighet-pakrevd: #ff5f15;
-  --viktighet-pakrevd-foreground: #ffffff;
+  --viktighet-absolutt-foreground: oklch(43.73% 0.17898 28.409);
+  --viktighet-pakrevd: #f8d0bd;
+  --viktighet-pakrevd-foreground: #ca3701ea;
   --viktighet-betinget: oklch(0.973 0.071 103.193);
   --viktighet-betinget-foreground: oklch(0.476 0.114 61.907);
   --viktighet-opsjonell: oklch(0.962 0.044 156.743);
