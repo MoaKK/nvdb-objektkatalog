@@ -1,0 +1,2 @@
+ALTER TABLE "objekttypekrav" ADD COLUMN "fkb_kommentar" text;--> statement-breakpoint
+ALTER TABLE "objekttypekrav" ADD CONSTRAINT "objekttypekrav_fkb_kommentar_lengde" CHECK (char_length("objekttypekrav"."fkb_kommentar") <= 1000);

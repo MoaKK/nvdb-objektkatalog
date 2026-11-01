@@ -18,9 +18,14 @@ export const egenskapskrav = pgTable(
   ],
 );
 
-export const objekttypekrav = pgTable("objekttypekrav", {
-  vegobjekttypeId: integer("vegobjekttype_id").primaryKey(),
-  fkb: boolean("fkb").notNull().default(false),
-  oppdatert: timestamp("oppdatert", { withTimezone: true }).notNull().defaultNow(),
-  oppdatertAv: text("oppdatert_av").references(() => user.id, { onDelete: "set null" }),
-});
+export const objekttypekrav = pgTable(
+  "objekttypekrav",
+  {
+    vegobjekttypeId: integer("vegobjekttype_id").primaryKey(),
+    fkb: boolean("fkb").notNull().default(false),
+    fkbKommentar: text("fkb_kommentar"),
+    oppdatert: timestamp("oppdatert", { withTimezone: true }).notNull().defaultNow(),
+    oppdatertAv: text("oppdatert_av").references(() => user.id, { onDelete: "set null" }),
+  },
+  (t) => [check("objekttypekrav_fkb_kommentar_lengde", sql`char_length(${t.fkbKommentar}) <= 1000`)],
+);
