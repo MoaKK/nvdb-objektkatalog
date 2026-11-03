@@ -25,6 +25,7 @@ export const objekttypekrav = pgTable(
     fkb: boolean("fkb").notNull().default(false),
     fkbKommentar: text("fkb_kommentar"),
     tilleggsinformasjon: text("tilleggsinformasjon"),
+    elektro: boolean("elektro").notNull().default(false),
     oppdatert: timestamp("oppdatert", { withTimezone: true }).notNull().defaultNow(),
     oppdatertAv: text("oppdatert_av").references(() => user.id, { onDelete: "set null" }),
   },
