@@ -13,6 +13,7 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { AdminMeny } from "@/components/objekttype/admin-meny";
 import { EgenskapTabell } from "@/components/objekttype/egenskap-tabell";
 import { ObjekttypeHode } from "@/components/objekttype/objekttype-hode";
 import { RelasjonTabell } from "@/components/objekttype/relasjon-tabell";
@@ -95,8 +96,9 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   }
 
   const t = type.data;
-  const elektro =
-    krav.data?.elektro === true || iElektroKategori((t.kategorier ?? []).map((k) => k.id));
+  const markertElektro = krav.data?.elektro === true;
+  const elektroViaKategori = iElektroKategori((t.kategorier ?? []).map((k) => k.id));
+  const elektro = markertElektro || elektroViaKategori;
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-6">
@@ -112,6 +114,16 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
           <AlertTitle>Endringen ble ikke lagret</AlertTitle>
           <AlertDescription>{lagre.error.message}</AlertDescription>
         </Alert>
+      )}
+
+      {kanRedigere && (
+        <div className="flex justify-end">
+          <AdminMeny
+            markertElektro={markertElektro}
+            elektroViaKategori={elektroViaKategori}
+            onEndreElektro={(elektro) => lagre.mutate({ type: "elektro", vegobjekttypeId: id, elektro })}
+          />
+        </div>
       )}
 
       <ObjekttypeHode
