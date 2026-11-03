@@ -111,6 +111,7 @@ export const vegobjekttypeDetailSchema = vegobjekttypeBaseSchema.extend({
   beskrivelse: z.string().nullish(),
   veiledning: z.string().nullish(),
   må_ha_mor: z.boolean().nullish(),
+  kategorier: z.array(z.object({ id: z.number() })).nullish(),
   egenskapstyper: z.array(egenskapstypeSchema).default([]),
   relasjonstyper: z
     .object({
