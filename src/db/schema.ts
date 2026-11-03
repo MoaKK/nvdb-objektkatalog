@@ -24,8 +24,15 @@ export const objekttypekrav = pgTable(
     vegobjekttypeId: integer("vegobjekttype_id").primaryKey(),
     fkb: boolean("fkb").notNull().default(false),
     fkbKommentar: text("fkb_kommentar"),
+    tilleggsinformasjon: text("tilleggsinformasjon"),
     oppdatert: timestamp("oppdatert", { withTimezone: true }).notNull().defaultNow(),
     oppdatertAv: text("oppdatert_av").references(() => user.id, { onDelete: "set null" }),
   },
-  (t) => [check("objekttypekrav_fkb_kommentar_lengde", sql`char_length(${t.fkbKommentar}) <= 1000`)],
+  (t) => [
+    check("objekttypekrav_fkb_kommentar_lengde", sql`char_length(${t.fkbKommentar}) <= 1000`),
+    check(
+      "objekttypekrav_tilleggsinformasjon_lengde",
+      sql`char_length(${t.tilleggsinformasjon}) <= 2000`,
+    ),
+  ],
 );

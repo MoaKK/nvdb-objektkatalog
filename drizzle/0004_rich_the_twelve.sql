@@ -1,0 +1,2 @@
+ALTER TABLE "objekttypekrav" ADD COLUMN "tilleggsinformasjon" text;--> statement-breakpoint
+ALTER TABLE "objekttypekrav" ADD CONSTRAINT "objekttypekrav_tilleggsinformasjon_lengde" CHECK (char_length("objekttypekrav"."tilleggsinformasjon") <= 2000);
