@@ -1,12 +1,20 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { DatakategoriBadge } from "@/components/datakategori-badge";
 import { BeskrivelseRedigerer } from "@/components/objekttype/beskrivelse-redigerer";
+import { VegkartLenker } from "@/components/objekttype/vegkart-lenker";
 import { ViktighetBadge } from "@/components/viktighet-badge";
 import { useKategorier } from "@/hooks/use-nvdb";
 import { TILLEGGSINFORMASJON_MAKS } from "@/lib/krav/endring";
@@ -114,6 +122,9 @@ export function ObjekttypeHode({
         {type.beskrivelse && (
           <CardDescription className="text-sm md:text-base">{type.beskrivelse}</CardDescription>
         )}
+        <CardAction>
+          <VegkartLenker id={type.id} navn={type.navn} />
+        </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 text-sm">
         <span className="flex flex-col gap-2">
