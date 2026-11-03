@@ -11,6 +11,8 @@ const tilstandSchema = z.object({
     iVerdier: z.boolean(),
     kategoriId: z.number().int().positive().nullable(),
     sortering: z.enum(["navn", "nummer"]),
+    bareElektro: z.boolean().default(false),
+    visSomListe: z.boolean().default(false),
   }),
   apne: z.array(z.enum(["1", "2", "3", "annet"])),
 });
