@@ -12,7 +12,13 @@ export async function hentTyperMedKrav(): Promise<number[]> {
     db
       .select({ id: objekttypekrav.vegobjekttypeId })
       .from(objekttypekrav)
-      .where(or(eq(objekttypekrav.fkb, true), isNotNull(objekttypekrav.fkbKommentar))),
+      .where(
+        or(
+          eq(objekttypekrav.fkb, true),
+          isNotNull(objekttypekrav.fkbKommentar),
+          isNotNull(objekttypekrav.tilleggsinformasjon),
+        ),
+      ),
   ]);
 
   return [...new Set([...egenskaper, ...objekter].map((r) => r.id))].sort((a, b) => a - b);

@@ -9,6 +9,7 @@ import { DatakategoriBadge } from "@/components/datakategori-badge";
 import { BeskrivelseRedigerer } from "@/components/objekttype/beskrivelse-redigerer";
 import { ViktighetBadge } from "@/components/viktighet-badge";
 import { useKategorier } from "@/hooks/use-nvdb";
+import { TILLEGGSINFORMASJON_MAKS } from "@/lib/krav/endring";
 import type { Egenskapstype, VegobjekttypeDetaljer } from "@/lib/nvdb/schemas";
 
 const GEOMETRI_TEKST: Record<string, string> = {
@@ -62,6 +63,8 @@ interface Props {
   kanRedigere?: boolean;
   onFkb?: (fkb: boolean) => void;
   onFkbKommentar?: (kommentar: string) => Promise<void>;
+  tilleggsinformasjon?: string | null;
+  onTilleggsinformasjon?: (tekst: string) => Promise<void>;
 }
 
 export function ObjekttypeHode({
@@ -71,6 +74,8 @@ export function ObjekttypeHode({
   kanRedigere = false,
   onFkb,
   onFkbKommentar,
+  tilleggsinformasjon = null,
+  onTilleggsinformasjon,
 }: Props) {
   const kategorier = useKategorier();
   const kategoriNavn = new Map((kategorier.data ?? []).map((k) => [k.id, k.navn]));
@@ -182,6 +187,23 @@ export function ObjekttypeHode({
                   <Innmaling key={g.id} geometri={g} />
                 ))}
               </ul>
+            </span>
+          </>
+        )}
+
+        {(tilleggsinformasjon || kanRedigere) && (
+          <>
+            <Separator />
+            <span className="flex flex-col gap-2">
+              <span className="font-medium">Tilleggsinformasjon fra Geodata</span>
+              <BeskrivelseRedigerer
+                verdi={tilleggsinformasjon}
+                navn={type.navn}
+                kanRedigere={kanRedigere}
+                etikett="tilleggsinformasjon"
+                maks={TILLEGGSINFORMASJON_MAKS}
+                onLagre={onTilleggsinformasjon ?? (() => Promise.resolve())}
+              />
             </span>
           </>
         )}

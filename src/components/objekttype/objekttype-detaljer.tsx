@@ -119,6 +119,10 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         onFkbKommentar={async (kommentar) => {
           await lagre.mutateAsync({ type: "fkbKommentar", vegobjekttypeId: id, kommentar });
         }}
+        tilleggsinformasjon={krav.data?.tilleggsinformasjon ?? null}
+        onTilleggsinformasjon={async (tekst) => {
+          await lagre.mutateAsync({ type: "tilleggsinformasjon", vegobjekttypeId: id, tekst });
+        }}
       />
 
       <Card>

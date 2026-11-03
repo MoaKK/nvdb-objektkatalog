@@ -15,7 +15,11 @@ export async function hentKrav(vegobjekttypeId: number): Promise<Kravdata> {
       .from(egenskapskrav)
       .where(eq(egenskapskrav.vegobjekttypeId, vegobjekttypeId)),
     db
-      .select({ fkb: objekttypekrav.fkb, fkbKommentar: objekttypekrav.fkbKommentar })
+      .select({
+        fkb: objekttypekrav.fkb,
+        fkbKommentar: objekttypekrav.fkbKommentar,
+        tilleggsinformasjon: objekttypekrav.tilleggsinformasjon,
+      })
       .from(objekttypekrav)
       .where(eq(objekttypekrav.vegobjekttypeId, vegobjekttypeId))
       .limit(1),
@@ -24,6 +28,7 @@ export async function hentKrav(vegobjekttypeId: number): Promise<Kravdata> {
   return {
     fkb: objekt[0]?.fkb ?? false,
     fkbKommentar: objekt[0]?.fkbKommentar ?? null,
+    tilleggsinformasjon: objekt[0]?.tilleggsinformasjon ?? null,
     egenskaper: Object.fromEntries(
       egenskaper.map((e) => [String(e.egenskapstypeId), { kreves: e.kreves, beskrivelse: e.beskrivelse }]),
     ),
