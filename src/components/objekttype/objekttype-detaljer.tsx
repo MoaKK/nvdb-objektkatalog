@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { EgenskapTabell } from "@/components/objekttype/egenskap-tabell";
 import { ObjekttypeHode } from "@/components/objekttype/objekttype-hode";
 import { RelasjonTabell } from "@/components/objekttype/relasjon-tabell";
+import { useElektro } from "@/hooks/use-elektro";
 import { useKrav, useLagreKrav } from "@/hooks/use-krav";
 import { useVegobjekttype } from "@/hooks/use-nvdb";
 import { authClient } from "@/lib/auth-client";
@@ -78,6 +79,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   const type = useVegobjekttype(id);
   const krav = useKrav(id);
   const lagre = useLagreKrav(id);
+  const { iElektroKategori } = useElektro();
   const { data: sesjon } = authClient.useSession();
   const kanRedigere = !!sesjon && krav.isSuccess;
 
@@ -93,6 +95,8 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   }
 
   const t = type.data;
+  const elektro =
+    krav.data?.elektro === true || iElektroKategori((t.kategorier ?? []).map((k) => k.id));
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-6">
@@ -119,6 +123,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         onFkbKommentar={async (kommentar) => {
           await lagre.mutateAsync({ type: "fkbKommentar", vegobjekttypeId: id, kommentar });
         }}
+        elektro={elektro}
         tilleggsinformasjon={krav.data?.tilleggsinformasjon ?? null}
         onTilleggsinformasjon={async (tekst) => {
           await lagre.mutateAsync({ type: "tilleggsinformasjon", vegobjekttypeId: id, tekst });

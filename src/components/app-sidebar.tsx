@@ -27,7 +27,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { KategoriListe } from "@/components/sidebar/kategori-liste";
 import { ObjekttypeFiltre } from "@/components/sidebar/objekttype-filtre";
-import { useTyperMedKrav } from "@/hooks/use-krav";
+import { useElektro } from "@/hooks/use-elektro";
+import { useKravoversikt } from "@/hooks/use-krav";
 import { useSokeindeks } from "@/hooks/use-nvdb";
 import { authClient } from "@/lib/auth-client";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
@@ -50,7 +51,8 @@ export function AppSidebar() {
   const indeks = useSokeindeks();
   const { data: sesjon, isPending: sesjonLaster } = authClient.useSession();
   const begrenset = !sesjonLaster && !sesjon;
-  const medKrav = useTyperMedKrav(begrenset);
+  const medKrav = useKravoversikt();
+  const { erElektro } = useElektro();
   const [valg, setValg] = useState<Sokevalg>(STANDARD_SOKEVALG);
   const [apne, setApne] = useState<string[]>([]);
   const [hentetLagret, setHentetLagret] = useState(false);
@@ -124,7 +126,7 @@ export function AppSidebar() {
   const grupper = useMemo(() => {
     const alle = sokVegobjekttyper(indeks.data ?? [], utsattValg);
     if (!begrenset) return alle;
-    const tillatte = new Set(medKrav.data ?? []);
+    const tillatte = new Set(medKrav.data?.medKrav ?? []);
     return Object.fromEntries(
       Object.entries(alle).map(([kategori, liste]) => [
         kategori,
@@ -214,6 +216,7 @@ export function AppSidebar() {
               </Empty>
             ) : (
               <KategoriListe
+                erElektro={erElektro}
                 grupper={grupper}
                 kategorier={synligeKategorier}
                 apne={apneKategorier}

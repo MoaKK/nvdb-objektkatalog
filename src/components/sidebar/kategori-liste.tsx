@@ -19,7 +19,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
+import { ELEKTRO_FARGE } from "@/lib/nvdb/elektro";
 import type { Sokegrupper } from "@/lib/nvdb/sok";
+import { cn } from "@/lib/utils";
 
 interface Props {
   grupper: Sokegrupper;
@@ -27,6 +29,7 @@ interface Props {
   onApneChange: (apne: string[]) => void;
   kategorier?: typeof DATAKATEGORIER;
   onLukket?: (kategoriId: string) => void;
+  erElektro?: (id: number, kategorier: number[]) => boolean;
 }
 
 function antallTekst(antall: number) {
@@ -39,6 +42,7 @@ export function KategoriListe({
   onApneChange,
   kategorier = DATAKATEGORIER,
   onLukket,
+  erElektro,
 }: Props) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -84,18 +88,21 @@ export function KategoriListe({
             <SidebarMenu>
               {grupper[kategori.id].map(({ type, treff }) => {
                 const href = `/objekttyper/${type.id}`;
+                const elektro = erElektro?.(type.id, type.kategorier) ?? false;
                 return (
                   <SidebarMenuItem key={type.id}>
                     <SidebarMenuButton
                       render={<Link href={href} prefetch={false} />}
                       isActive={pathname === href}
-                      title={`${type.navn} (nummer ${type.id})${treff ? `. ${treff}` : ""}`}
+                      title={`${type.navn} (nummer ${type.id})${elektro ? ". Elektro-objekt" : ""}${treff ? `. ${treff}` : ""}`}
                       onClick={() => {
                         if (isMobile) setOpenMobile(false);
                       }}
                       className={treff ? "h-auto flex-col items-start gap-0 py-1.5 pr-12" : "pr-12"}
                     >
-                      <span className="w-full truncate">{type.navn}</span>
+                      <span className={cn("w-full truncate", elektro && ELEKTRO_FARGE)}>
+                        {type.navn}
+                      </span>
                       {treff && (
                         <span className="w-full truncate text-xs text-muted-foreground">
                           {treff}

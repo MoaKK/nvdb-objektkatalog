@@ -10,6 +10,8 @@ import { BeskrivelseRedigerer } from "@/components/objekttype/beskrivelse-redige
 import { ViktighetBadge } from "@/components/viktighet-badge";
 import { useKategorier } from "@/hooks/use-nvdb";
 import { TILLEGGSINFORMASJON_MAKS } from "@/lib/krav/endring";
+import { ELEKTRO_FARGE } from "@/lib/nvdb/elektro";
+import { cn } from "@/lib/utils";
 import type { Egenskapstype, VegobjekttypeDetaljer } from "@/lib/nvdb/schemas";
 
 const GEOMETRI_TEKST: Record<string, string> = {
@@ -65,6 +67,7 @@ interface Props {
   onFkbKommentar?: (kommentar: string) => Promise<void>;
   tilleggsinformasjon?: string | null;
   onTilleggsinformasjon?: (tekst: string) => Promise<void>;
+  elektro?: boolean;
 }
 
 export function ObjekttypeHode({
@@ -76,6 +79,7 @@ export function ObjekttypeHode({
   onFkbKommentar,
   tilleggsinformasjon = null,
   onTilleggsinformasjon,
+  elektro = false,
 }: Props) {
   const kategorier = useKategorier();
   const kategoriNavn = new Map((kategorier.data ?? []).map((k) => [k.id, k.navn]));
@@ -97,7 +101,9 @@ export function ObjekttypeHode({
     <Card>
       <CardHeader>
         <CardTitle className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xl md:text-2xl">
-          {type.navn}
+          <span className={cn(elektro && ELEKTRO_FARGE)} title={elektro ? "Elektro-objekt" : undefined}>
+            {type.navn}
+          </span>
           <span
             className="font-mono text-lg text-muted-foreground md:text-xl"
             title="Vegobjekttypens nummer i NVDB"

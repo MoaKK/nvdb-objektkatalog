@@ -2,9 +2,10 @@ import "server-only";
 import { eq, isNotNull, or } from "drizzle-orm";
 import { db } from "@/db";
 import { egenskapskrav, objekttypekrav } from "@/db/schema";
+import type { Kravoversikt } from "@/lib/krav/typer";
 
-export async function hentTyperMedKrav(): Promise<number[]> {
-  const [egenskaper, objekter] = await Promise.all([
+export async function hentKravoversikt(): Promise<Kravoversikt> {
+  const [egenskaper, objekter, elektro] = await Promise.all([
     db
       .selectDistinct({ id: egenskapskrav.vegobjekttypeId })
       .from(egenskapskrav)
@@ -19,7 +20,16 @@ export async function hentTyperMedKrav(): Promise<number[]> {
           isNotNull(objekttypekrav.tilleggsinformasjon),
         ),
       ),
+    db
+      .select({ id: objekttypekrav.vegobjekttypeId })
+      .from(objekttypekrav)
+      .where(eq(objekttypekrav.elektro, true)),
   ]);
 
-  return [...new Set([...egenskaper, ...objekter].map((r) => r.id))].sort((a, b) => a - b);
+  const sorter = (ider: number[]) => [...new Set(ider)].sort((a, b) => a - b);
+
+  return {
+    medKrav: sorter([...egenskaper, ...objekter].map((r) => r.id)),
+    elektro: sorter(elektro.map((r) => r.id)),
+  };
 }

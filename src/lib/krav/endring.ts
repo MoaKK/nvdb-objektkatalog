@@ -43,13 +43,25 @@ export const kravendringSchema = z.discriminatedUnion("type", [
     vegobjekttypeId: id,
     tekst: tekstOpptil(TILLEGGSINFORMASJON_MAKS),
   }),
+  z.strictObject({
+    type: z.literal("elektro"),
+    vegobjekttypeId: id,
+    elektro: z.boolean(),
+  }),
 ]);
 
 export type Kravendring = z.input<typeof kravendringSchema>;
 
 export function anvendEndring(data: Kravdata | undefined, endring: Kravendring): Kravdata {
-  const d = data ?? { fkb: false, fkbKommentar: null, tilleggsinformasjon: null, egenskaper: {} };
+  const d = data ?? {
+    fkb: false,
+    fkbKommentar: null,
+    tilleggsinformasjon: null,
+    elektro: false,
+    egenskaper: {},
+  };
   if (endring.type === "fkb") return { ...d, fkb: endring.fkb };
+  if (endring.type === "elektro") return { ...d, elektro: endring.elektro };
   if (endring.type === "fkbKommentar") return { ...d, fkbKommentar: endring.kommentar.trim() || null };
   if (endring.type === "tilleggsinformasjon") {
     return { ...d, tilleggsinformasjon: endring.tekst.trim() || null };
