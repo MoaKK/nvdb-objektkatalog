@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { BeskrivelseRedigerer } from "@/components/objekttype/beskrivelse-redigerer";
+import { UtvidbarTekst } from "@/components/objekttype/utvidbar-tekst";
 import { ViktighetBadge } from "@/components/viktighet-badge";
 import type { Kravdata } from "@/lib/krav/typer";
 import { SKJULTE_EGENSKAPSTYPER, type Egenskapstype } from "@/lib/nvdb/schemas";
@@ -99,11 +100,8 @@ export function EgenskapTabell({
                   )}
                 </span>
                 {visNvdbBeskrivelse && e.beskrivelse && (
-                  <span
-                    className="mt-1 line-clamp-3 block text-xs text-muted-foreground md:line-clamp-2"
-                    title={e.beskrivelse}
-                  >
-                    {e.beskrivelse}
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    <UtvidbarTekst tekst={e.beskrivelse} hva="NVDB sin beskrivelse" />
                   </span>
                 )}
                 {(k?.beskrivelse || kanRedigere) && (

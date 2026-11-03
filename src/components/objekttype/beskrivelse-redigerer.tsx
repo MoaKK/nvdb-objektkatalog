@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { UtvidbarTekst } from "@/components/objekttype/utvidbar-tekst";
 import { BESKRIVELSE_MAKS } from "@/lib/krav/endring";
-import { cn } from "@/lib/utils";
 
 interface Props {
   verdi: string | null;
@@ -20,43 +20,10 @@ export function BeskrivelseRedigerer({ verdi, navn, kanRedigere, onLagre }: Prop
   const [lagrer, setLagrer] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
 
-  const [utvidet, setUtvidet] = useState(false);
-  const [forLangTilVisning, setForLangTilVisning] = useState(false);
-  const tekstRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const element = tekstRef.current;
-    if (!element || utvidet) return;
-    const sjekk = () => setForLangTilVisning(element.scrollHeight > element.clientHeight + 1);
-    sjekk();
-    const observer = new ResizeObserver(sjekk);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [verdi, utvidet, redigerer]);
-
   if (!redigerer) {
     return (
       <span className="flex flex-col items-start gap-1">
-        {verdi && (
-          <span
-            ref={tekstRef}
-            className={cn("whitespace-pre-line wrap-anywhere", !utvidet && "line-clamp-3")}
-          >
-            {verdi}
-          </span>
-        )}
-        {verdi && (forLangTilVisning || utvidet) && (
-          <Button
-            variant="link"
-            size="sm"
-            className="h-auto p-0"
-            aria-expanded={utvidet}
-            title={utvidet ? "Vis mindre av kommentaren" : "Vis hele kommentaren"}
-            onClick={() => setUtvidet(!utvidet)}
-          >
-            {utvidet ? "Vis mindre" : "Les mer"}
-          </Button>
-        )}
+        {verdi && <UtvidbarTekst tekst={verdi} hva="kommentaren" />}
         {kanRedigere && (
           <Button
             variant="ghost"
