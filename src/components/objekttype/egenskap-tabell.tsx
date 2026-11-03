@@ -47,7 +47,9 @@ export function EgenskapTabell({
         e.viktighet !== "HISTORISK" &&
         (kanRedigere ||
           visAlleEgenskaper ||
-          PAKREVD.has(e.viktighet) || krav?.[String(e.id)]?.kreves === true),
+          PAKREVD.has(e.viktighet) ||
+          krav?.[String(e.id)]?.kreves === true ||
+          !!krav?.[String(e.id)]?.beskrivelse),
     )
     .sort((a, b) => (a.sorteringsnummer ?? 0) - (b.sorteringsnummer ?? 0));
 
@@ -72,16 +74,16 @@ export function EgenskapTabell({
       </TableHeader>
       <TableCaption className="text-left">
         {kanRedigere
-          ? "Som admin ser du alle egenskaper. Andre ser bare de som er påkrevd i NVDB eller krysset av som krav til innlevering."
+          ? "Som admin ser du alle egenskaper. Andre ser bare de som er påkrevd i NVDB, krysset av eller har en kommentar."
           : visAlleEgenskaper
             ? "Viser alle egenskaper."
-            : "Viser egenskaper som er påkrevd i NVDB eller som geodata krever ved innlevering."}
+            : "Viser egenskaper som er påkrevd i NVDB, eller som geodata har krysset av eller kommentert."}
       </TableCaption>
       <TableBody>
         {synlige.length === 0 && (
           <TableRow className="hover:bg-transparent">
             <TableCell colSpan={3} className="py-6 text-center whitespace-normal text-muted-foreground">
-              Ingen egenskaper er påkrevd eller krysset av for denne objekttypen.
+              Ingen egenskaper er påkrevd, krysset av eller kommentert for denne objekttypen.
             </TableCell>
           </TableRow>
         )}
