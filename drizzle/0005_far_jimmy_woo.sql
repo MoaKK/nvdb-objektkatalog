@@ -1,0 +1,1 @@
+ALTER TABLE "objekttypekrav" ADD COLUMN "elektro" boolean DEFAULT false NOT NULL;

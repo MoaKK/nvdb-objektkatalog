@@ -3,12 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { anvendEndring, type Kravendring } from "@/lib/krav/endring";
 import { lagreKravendring } from "@/lib/krav/lagre";
-import type { Kravdata } from "@/lib/krav/typer";
+import type { Kravdata, Kravoversikt } from "@/lib/krav/typer";
 
 export const kravKey = (vegobjekttypeId: number) => ["krav", vegobjekttypeId] as const;
 export const kravoversiktKey = ["kravoversikt"] as const;
 
-export function useTyperMedKrav(enabled = true) {
+export function useKravoversikt() {
   return useQuery({
     queryKey: kravoversiktKey,
     queryFn: async () => {
@@ -17,9 +17,8 @@ export function useTyperMedKrav(enabled = true) {
         const body = (await res.json().catch(() => null)) as { feil?: string } | null;
         throw new Error(body?.feil ?? `Feil ${res.status}`);
       }
-      return res.json() as Promise<number[]>;
+      return res.json() as Promise<Kravoversikt>;
     },
-    enabled,
     staleTime: 30_000,
   });
 }

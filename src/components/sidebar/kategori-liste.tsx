@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   Accordion,
   AccordionContent,
@@ -9,15 +7,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import {
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { SidebarSeparator } from "@/components/ui/sidebar";
+import { ObjekttypeMeny } from "@/components/sidebar/objekttype-meny";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import type { Sokegrupper } from "@/lib/nvdb/sok";
 
@@ -27,6 +18,7 @@ interface Props {
   onApneChange: (apne: string[]) => void;
   kategorier?: typeof DATAKATEGORIER;
   onLukket?: (kategoriId: string) => void;
+  erElektro?: (id: number, kategorier: number[]) => boolean;
 }
 
 function antallTekst(antall: number) {
@@ -39,9 +31,8 @@ export function KategoriListe({
   onApneChange,
   kategorier = DATAKATEGORIER,
   onLukket,
+  erElektro,
 }: Props) {
-  const pathname = usePathname();
-  const { isMobile, setOpenMobile } = useSidebar();
 
   return (
     <Accordion
@@ -77,36 +68,7 @@ export function KategoriListe({
           </AccordionTrigger>
           <AccordionContent className="pb-2 [&_a]:no-underline">
             <SidebarSeparator className="mx-0 mb-1" />
-            <SidebarGroupLabel className="justify-between underline underline-offset-4">
-              <span title="Navnet på vegobjekttypen">Navn</span>
-              <span title="Vegobjekttypens nummer i NVDB">Nummer</span>
-            </SidebarGroupLabel>
-            <SidebarMenu>
-              {grupper[kategori.id].map(({ type, treff }) => {
-                const href = `/objekttyper/${type.id}`;
-                return (
-                  <SidebarMenuItem key={type.id}>
-                    <SidebarMenuButton
-                      render={<Link href={href} prefetch={false} />}
-                      isActive={pathname === href}
-                      title={`${type.navn} (nummer ${type.id})${treff ? `. ${treff}` : ""}`}
-                      onClick={() => {
-                        if (isMobile) setOpenMobile(false);
-                      }}
-                      className={treff ? "h-auto flex-col items-start gap-0 py-1.5 pr-12" : "pr-12"}
-                    >
-                      <span className="w-full truncate">{type.navn}</span>
-                      {treff && (
-                        <span className="w-full truncate text-xs text-muted-foreground">
-                          {treff}
-                        </span>
-                      )}
-                    </SidebarMenuButton>
-                    <SidebarMenuBadge>{type.id}</SidebarMenuBadge>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
+            <ObjekttypeMeny resultater={grupper[kategori.id]} erElektro={erElektro} />
           </AccordionContent>
         </AccordionItem>
       ))}

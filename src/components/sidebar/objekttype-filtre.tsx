@@ -12,6 +12,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -45,9 +46,9 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
 
   return (
     <FieldGroup className="gap-2">
-      <InputGroup>
+      <InputGroup className="bg-background shadow-sm dark:bg-input/30">
         <InputGroupAddon>
-          <Search />
+          <Search className="" />
         </InputGroupAddon>
         <InputGroupInput
           value={valg.tekst}
@@ -71,16 +72,22 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
         )}
       </InputGroup>
 
-      <Collapsible>
+      <Collapsible className="rounded-lg border bg-background shadow-sm dark:bg-input/30">
         <CollapsibleTrigger
           title="Vis eller skjul filtre"
-          render={<Button variant="ghost" size="sm" className="group w-full justify-between" />}
+          render={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="group w-full justify-between rounded-lg font-medium"
+            />
+          }
         >
           Filtre
           <ChevronDown className="transition-transform group-data-[panel-open]:rotate-180" />
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <FieldGroup className="gap-4 pt-2">
+          <FieldGroup className="gap-4 border-t px-3 pt-3 pb-3">
             <FieldSet className="gap-2">
               <FieldLegend variant="label">Søk også i</FieldLegend>
               <Field orientation="horizontal" title="Søk også i navnene på egenskapstypene">
@@ -101,6 +108,36 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
                 />
                 <FieldLabel htmlFor="sok-verdier" className="font-normal">
                   Tillatte verdier
+                </FieldLabel>
+              </Field>
+            </FieldSet>
+
+            <FieldSet className="gap-2">
+              <FieldLegend variant="label">Visning</FieldLegend>
+              <Field
+                orientation="horizontal"
+                title="Vis bare objekter innen elektro, merket med blå tekst"
+              >
+                <Switch
+                  id="bare-elektro"
+                  checked={valg.bareElektro}
+                  onCheckedChange={(c) => sett("bareElektro", c)}
+                />
+                <FieldLabel htmlFor="bare-elektro" className="font-normal">
+                  Vis bare elektro
+                </FieldLabel>
+              </Field>
+              <Field
+                orientation="horizontal"
+                title="Vis alle objektene i én liste uten hovedkategorier"
+              >
+                <Switch
+                  id="vis-som-liste"
+                  checked={valg.visSomListe}
+                  onCheckedChange={(c) => sett("visSomListe", c)}
+                />
+                <FieldLabel htmlFor="vis-som-liste" className="font-normal">
+                  Vis alle objekter i en liste
                 </FieldLabel>
               </Field>
             </FieldSet>

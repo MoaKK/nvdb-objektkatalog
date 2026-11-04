@@ -29,6 +29,20 @@
       "when": 1793535348438,
       "tag": "0003_massive_chimera",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793747783870,
+      "tag": "0004_rich_the_twelve",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793748487751,
+      "tag": "0005_far_jimmy_woo",
+      "breakpoints": true
     }
   ]
 }

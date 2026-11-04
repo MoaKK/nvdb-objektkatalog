@@ -20,20 +20,26 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  SidebarSeparator,
   SidebarMenu,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NvdbNede } from "@/components/nvdb-nede";
 import { KategoriListe } from "@/components/sidebar/kategori-liste";
+import { ObjekttypeMeny } from "@/components/sidebar/objekttype-meny";
 import { ObjekttypeFiltre } from "@/components/sidebar/objekttype-filtre";
-import { useTyperMedKrav } from "@/hooks/use-krav";
+import { useElektro } from "@/hooks/use-elektro";
+import { useKravoversikt } from "@/hooks/use-krav";
 import { useSokeindeks } from "@/hooks/use-nvdb";
 import { authClient } from "@/lib/auth-client";
+import { erNvdbUtilgjengelig } from "@/lib/nvdb/api-feil";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import {
   STANDARD_SOKEVALG,
   sokVegobjekttyper,
+  sorterResultater,
   type Sokegrupper,
   type Sokevalg,
 } from "@/lib/nvdb/sok";
@@ -50,7 +56,8 @@ export function AppSidebar() {
   const indeks = useSokeindeks();
   const { data: sesjon, isPending: sesjonLaster } = authClient.useSession();
   const begrenset = !sesjonLaster && !sesjon;
-  const medKrav = useTyperMedKrav(begrenset);
+  const medKrav = useKravoversikt();
+  const { erElektro } = useElektro();
   const [valg, setValg] = useState<Sokevalg>(STANDARD_SOKEVALG);
   const [apne, setApne] = useState<string[]>([]);
   const [hentetLagret, setHentetLagret] = useState(false);
@@ -60,7 +67,7 @@ export function AppSidebar() {
   const utsattValg = useDeferredValue(valg);
   const { isMobile, openMobile, setOpenMobile } = useSidebar();
 
-  const sokNokkel = `${utsattValg.tekst}|${utsattValg.kategoriId}|${utsattValg.iEgenskaper}|${utsattValg.iVerdier}`;
+  const sokNokkel = `${utsattValg.tekst}|${utsattValg.kategoriId}|${utsattValg.iEgenskaper}|${utsattValg.iVerdier}|${utsattValg.bareElektro}`;
   const [lukketISok, setLukketISok] = useState<{ nokkel: string; ider: string[] }>({
     nokkel: "",
     ider: [],
@@ -123,19 +130,35 @@ export function AppSidebar() {
 
   const grupper = useMemo(() => {
     const alle = sokVegobjekttyper(indeks.data ?? [], utsattValg);
-    if (!begrenset) return alle;
-    const tillatte = new Set(medKrav.data ?? []);
+    if (!begrenset && !utsattValg.bareElektro) return alle;
+    const tillatte = new Set(medKrav.data?.medKrav ?? []);
     return Object.fromEntries(
       Object.entries(alle).map(([kategori, liste]) => [
         kategori,
-        liste.filter((r) => tillatte.has(r.type.id)),
+        liste.filter(
+          (r) =>
+            (!begrenset || tillatte.has(r.type.id)) &&
+            (!utsattValg.bareElektro || erElektro(r.type.id, r.type.kategorier)),
+        ),
       ]),
     ) as Sokegrupper;
-  }, [indeks.data, utsattValg, begrenset, medKrav.data]);
+  }, [indeks.data, utsattValg, begrenset, medKrav.data, erElektro]);
+
+  const flatListe = useMemo(
+    () =>
+      sorterResultater(
+        DATAKATEGORIER.flatMap((k) => grupper[k.id]),
+        utsattValg.sortering,
+      ),
+    [grupper, utsattValg.sortering],
+  );
 
   const laster = indeks.isPending || sesjonLaster || (begrenset && medKrav.isPending);
   const harFeil = indeks.isError || (begrenset && medKrav.isError);
-  const filtrerer = utsattValg.tekst.trim().length > 0 || utsattValg.kategoriId !== null;
+  const filtrerer =
+    utsattValg.tekst.trim().length > 0 ||
+    utsattValg.kategoriId !== null ||
+    utsattValg.bareElektro;
   const kategorierMedTreff = DATAKATEGORIER.filter((k) => grupper[k.id].length > 0);
   const synligeKategorier = filtrerer || begrenset ? kategorierMedTreff : DATAKATEGORIER;
   const antallTreff = kategorierMedTreff.reduce((sum, k) => sum + grupper[k.id].length, 0);
@@ -158,7 +181,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar variant="inset">
-      <SidebarHeader className="gap-3 border-b p-4">
+      <SidebarHeader className="relative z-10 gap-3 border-b p-4 shadow-sm">
         <Link
           href="/"
           className="font-semibold leading-tight"
@@ -172,6 +195,7 @@ export function AppSidebar() {
             Krav til innlevering av data
           </span>
         </Link>
+        <SidebarSeparator className="mx-0" />
         <ObjekttypeFiltre valg={valg} onChange={setValg} />
       </SidebarHeader>
 
@@ -187,11 +211,14 @@ export function AppSidebar() {
             </SidebarMenu>
           )}
 
-          {indeks.isError && (
-            <Alert variant="destructive">
-              <AlertDescription>Kunne ikke hente vegobjekttyper fra NVDB.</AlertDescription>
-            </Alert>
-          )}
+          {indeks.isError &&
+            (erNvdbUtilgjengelig(indeks.error) ? (
+              <NvdbNede kompakt onProvIgjen={() => indeks.refetch()} />
+            ) : (
+              <Alert variant="destructive">
+                <AlertDescription>Kunne ikke hente vegobjekttyper fra NVDB.</AlertDescription>
+              </Alert>
+            ))}
 
           {!indeks.isError && begrenset && medKrav.isError && (
             <Alert variant="destructive">
@@ -207,13 +234,22 @@ export function AppSidebar() {
                   <EmptyTitle>{filtrerer ? "Ingen treff" : "Ingen objekttyper ennå"}</EmptyTitle>
                   <EmptyDescription>
                     {filtrerer
-                      ? "Prøv et annet søkeord, eller søk også i egenskapstyper og tillatte verdier."
+                      ? utsattValg.bareElektro && !utsattValg.tekst.trim()
+                        ? "Ingen elektro-objekter å vise."
+                        : "Prøv et annet søkeord, eller søk også i egenskapstyper og tillatte verdier."
                       : "Geodata har ikke lagt inn registreringskrav for noen objekttyper ennå."}
                   </EmptyDescription>
                 </EmptyHeader>
               </Empty>
+            ) : valg.visSomListe ? (
+              <ObjekttypeMeny
+                resultater={flatListe}
+                erElektro={erElektro}
+                etikettKlasse="sticky top-0 z-10 bg-sidebar"
+              />
             ) : (
               <KategoriListe
+                erElektro={erElektro}
                 grupper={grupper}
                 kategorier={synligeKategorier}
                 apne={apneKategorier}

@@ -31,11 +31,20 @@ export async function lagreKravendring(input: unknown): Promise<Lagreresultat> {
   const brukerId = sesjon.user.id;
 
   try {
-    if (endring.type === "fkb" || endring.type === "fkbKommentar") {
+    if (
+      endring.type === "fkb" ||
+      endring.type === "fkbKommentar" ||
+      endring.type === "tilleggsinformasjon" ||
+      endring.type === "elektro"
+    ) {
       const objektfelt =
         endring.type === "fkb"
           ? { fkb: endring.fkb }
-          : { fkbKommentar: endring.kommentar || null };
+          : endring.type === "fkbKommentar"
+            ? { fkbKommentar: endring.kommentar || null }
+            : endring.type === "tilleggsinformasjon"
+              ? { tilleggsinformasjon: endring.tekst || null }
+              : { elektro: endring.elektro };
       await db
         .insert(objekttypekrav)
         .values({ vegobjekttypeId: endring.vegobjekttypeId, ...objektfelt, oppdatertAv: brukerId })

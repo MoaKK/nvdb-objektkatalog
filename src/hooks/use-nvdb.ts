@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { ApiFeil } from "@/lib/nvdb/api-feil";
 import type {
   VegobjekttypeDetaljer,
   VegobjekttypeIndeks,
@@ -10,8 +11,8 @@ import type {
 async function hentJson<T>(url: string): Promise<T> {
   const res = await fetch(url, { headers: { Accept: "application/json" } });
   if (!res.ok) {
-    const body = (await res.json().catch(() => null)) as { feil?: string } | null;
-    throw new Error(body?.feil ?? `Feil ${res.status}`);
+    const body = (await res.json().catch(() => null)) as { feil?: string; kode?: string } | null;
+    throw new ApiFeil(body?.feil ?? `Feil ${res.status}`, res.status, body?.kode ?? null);
   }
   return res.json() as Promise<T>;
 }

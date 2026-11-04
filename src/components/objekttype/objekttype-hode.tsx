@@ -1,11 +1,25 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { DatakategoriBadge } from "@/components/datakategori-badge";
 import { BeskrivelseRedigerer } from "@/components/objekttype/beskrivelse-redigerer";
+import { VegkartLenker } from "@/components/objekttype/vegkart-lenker";
 import { ViktighetBadge } from "@/components/viktighet-badge";
+import { useKategorier } from "@/hooks/use-nvdb";
+import { TILLEGGSINFORMASJON_MAKS } from "@/lib/krav/endring";
+import { ELEKTRO_FARGE } from "@/lib/nvdb/elektro";
+import { cn } from "@/lib/utils";
 import type { Egenskapstype, VegobjekttypeDetaljer } from "@/lib/nvdb/schemas";
 
 const GEOMETRI_TEKST: Record<string, string> = {
@@ -13,6 +27,8 @@ const GEOMETRI_TEKST: Record<string, string> = {
   LINJE: "linje",
   POLYGON: "flate",
 };
+
+const ALLE_KATEGORIER_ID = 38;
 
 const PAKREVD = new Set(["PÅKREVD_ABSOLUTT", "PÅKREVD_IKKE_ABSOLUTT"]);
 
@@ -57,6 +73,9 @@ interface Props {
   kanRedigere?: boolean;
   onFkb?: (fkb: boolean) => void;
   onFkbKommentar?: (kommentar: string) => Promise<void>;
+  tilleggsinformasjon?: string | null;
+  onTilleggsinformasjon?: (tekst: string) => Promise<void>;
+  elektro?: boolean;
 }
 
 export function ObjekttypeHode({
@@ -66,7 +85,16 @@ export function ObjekttypeHode({
   kanRedigere = false,
   onFkb,
   onFkbKommentar,
+  tilleggsinformasjon = null,
+  onTilleggsinformasjon,
+  elektro = false,
 }: Props) {
+  const kategorier = useKategorier();
+  const kategoriNavn = new Map((kategorier.data ?? []).map((k) => [k.id, k.navn]));
+  const typekategorier = (type.kategorier ?? [])
+    .map((k) => k.id)
+    .filter((id) => id !== ALLE_KATEGORIER_ID);
+
   const alleGeometrier = type.egenskapstyper
     .filter((e) => e.egenskapstype === "Geometri" && e.viktighet !== "HISTORISK")
     .sort(
@@ -81,7 +109,9 @@ export function ObjekttypeHode({
     <Card>
       <CardHeader>
         <CardTitle className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xl md:text-2xl">
-          {type.navn}
+          <span className={cn(elektro && ELEKTRO_FARGE)} title={elektro ? "Elektro-objekt" : undefined}>
+            {type.navn}
+          </span>
           <span
             className="font-mono text-lg text-muted-foreground md:text-xl"
             title="Vegobjekttypens nummer i NVDB"
@@ -92,16 +122,41 @@ export function ObjekttypeHode({
         {type.beskrivelse && (
           <CardDescription className="text-sm md:text-base">{type.beskrivelse}</CardDescription>
         )}
+        <CardAction>
+          <VegkartLenker id={type.id} navn={type.navn} />
+        </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 text-sm">
-        <span className="flex flex-wrap items-center gap-2">
-          <span className="font-medium">Hovedkategori:</span>
-          <DatakategoriBadge hovedkategori={type.hovedkategori} />
-          {type.må_ha_mor && (
-            <Badge variant="outline" title="Objektet må knyttes til et morobjekt i NVDB">
-              Må ha morobjekt
-            </Badge>
+        <span className="flex flex-col gap-2">
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">Hovedkategori:</span>
+            <DatakategoriBadge hovedkategori={type.hovedkategori} />
+          </span>
+          {typekategorier.length > 0 && (
+            <span className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">Vegobjekttypekategori:</span>
+              {typekategorier.map((id) => {
+                const navn = kategoriNavn.get(id) ?? `Kategori ${id}`;
+                return (
+                  <Badge key={id} variant="secondary" title={`Vegobjekttypekategori i NVDB: ${navn}`}>
+                    {navn}
+                  </Badge>
+                );
+              })}
+            </span>
           )}
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="font-medium">Morobjekt:</span>
+            {type.må_ha_mor ? (
+              <Badge variant="outline" title="Objektet må knyttes til et morobjekt i NVDB">
+                Må ha morobjekt
+              </Badge>
+            ) : (
+              <Badge variant="outline" title="Objektet kan registreres uten morobjekt i NVDB">
+                Trenger ikke morobjekt
+              </Badge>
+            )}
+          </span>
         </span>
         {type.veiledning && <p className="text-muted-foreground">{type.veiledning}</p>}
       <Separator />
@@ -149,6 +204,23 @@ export function ObjekttypeHode({
                   <Innmaling key={g.id} geometri={g} />
                 ))}
               </ul>
+            </span>
+          </>
+        )}
+
+        {(tilleggsinformasjon || kanRedigere) && (
+          <>
+            <Separator />
+            <span className="flex flex-col gap-2">
+              <span className="font-medium">Tilleggsinformasjon fra Geodata</span>
+              <BeskrivelseRedigerer
+                verdi={tilleggsinformasjon}
+                navn={type.navn}
+                kanRedigere={kanRedigere}
+                etikett="tilleggsinformasjon"
+                maks={TILLEGGSINFORMASJON_MAKS}
+                onLagre={onTilleggsinformasjon ?? (() => Promise.resolve())}
+              />
             </span>
           </>
         )}

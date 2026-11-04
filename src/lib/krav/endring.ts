@@ -2,13 +2,18 @@ import { z } from "zod";
 import type { Kravdata } from "@/lib/krav/typer";
 
 export const BESKRIVELSE_MAKS = 1000;
+export const TILLEGGSINFORMASJON_MAKS = 2000;
 
 const id = z.number().int().positive().max(9_999_999);
 
-const tekst = z
-  .string()
-  .transform((s) => s.replace(/\r\n/g, "\n").trim())
-  .pipe(z.string().max(BESKRIVELSE_MAKS));
+function tekstOpptil(maks: number) {
+  return z
+    .string()
+    .transform((s) => s.replace(/\r\n/g, "\n").trim())
+    .pipe(z.string().max(maks));
+}
+
+const tekst = tekstOpptil(BESKRIVELSE_MAKS);
 
 export const kravendringSchema = z.discriminatedUnion("type", [
   z.strictObject({
@@ -33,14 +38,34 @@ export const kravendringSchema = z.discriminatedUnion("type", [
     vegobjekttypeId: id,
     kommentar: tekst,
   }),
+  z.strictObject({
+    type: z.literal("tilleggsinformasjon"),
+    vegobjekttypeId: id,
+    tekst: tekstOpptil(TILLEGGSINFORMASJON_MAKS),
+  }),
+  z.strictObject({
+    type: z.literal("elektro"),
+    vegobjekttypeId: id,
+    elektro: z.boolean(),
+  }),
 ]);
 
 export type Kravendring = z.input<typeof kravendringSchema>;
 
 export function anvendEndring(data: Kravdata | undefined, endring: Kravendring): Kravdata {
-  const d = data ?? { fkb: false, fkbKommentar: null, egenskaper: {} };
+  const d = data ?? {
+    fkb: false,
+    fkbKommentar: null,
+    tilleggsinformasjon: null,
+    elektro: false,
+    egenskaper: {},
+  };
   if (endring.type === "fkb") return { ...d, fkb: endring.fkb };
+  if (endring.type === "elektro") return { ...d, elektro: endring.elektro };
   if (endring.type === "fkbKommentar") return { ...d, fkbKommentar: endring.kommentar.trim() || null };
+  if (endring.type === "tilleggsinformasjon") {
+    return { ...d, tilleggsinformasjon: endring.tekst.trim() || null };
+  }
 
   const nokkel = String(endring.egenskapstypeId);
   const naa = d.egenskaper[nokkel] ?? { kreves: false, beskrivelse: null };

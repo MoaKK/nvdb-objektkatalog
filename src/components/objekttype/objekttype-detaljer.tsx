@@ -13,11 +13,15 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { NvdbNede } from "@/components/nvdb-nede";
+import { AdminMeny } from "@/components/objekttype/admin-meny";
 import { EgenskapTabell } from "@/components/objekttype/egenskap-tabell";
 import { ObjekttypeHode } from "@/components/objekttype/objekttype-hode";
-import { RelasjonTabell } from "@/components/objekttype/relasjon-tabell";
+import { RelasjonKort } from "@/components/objekttype/relasjon-kort";
+import { useElektro } from "@/hooks/use-elektro";
 import { useKrav, useLagreKrav } from "@/hooks/use-krav";
 import { useVegobjekttype } from "@/hooks/use-nvdb";
+import { erNvdbUtilgjengelig } from "@/lib/nvdb/api-feil";
 import { authClient } from "@/lib/auth-client";
 
 export function DetaljerSkjelett() {
@@ -78,12 +82,20 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   const type = useVegobjekttype(id);
   const krav = useKrav(id);
   const lagre = useLagreKrav(id);
+  const { iElektroKategori } = useElektro();
   const { data: sesjon } = authClient.useSession();
   const kanRedigere = !!sesjon && krav.isSuccess;
 
   if (type.isPending) return <DetaljerSkjelett />;
 
   if (type.isError) {
+    if (erNvdbUtilgjengelig(type.error)) {
+      return (
+        <div className="mx-auto w-full max-w-6xl">
+          <NvdbNede onProvIgjen={() => type.refetch()} />
+        </div>
+      );
+    }
     return (
       <Alert variant="destructive">
         <AlertTitle>Kunne ikke hente vegobjekttypen</AlertTitle>
@@ -93,9 +105,12 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   }
 
   const t = type.data;
+  const markertElektro = krav.data?.elektro === true;
+  const elektroViaKategori = iElektroKategori((t.kategorier ?? []).map((k) => k.id));
+  const elektro = markertElektro || elektroViaKategori;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 md:gap-4">
       {krav.isError && (
         <Alert variant="destructive">
           <AlertTitle>Kunne ikke hente vegavdelingens krav</AlertTitle>
@@ -110,6 +125,16 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         </Alert>
       )}
 
+      {kanRedigere && (
+        <div className="flex justify-end">
+          <AdminMeny
+            markertElektro={markertElektro}
+            elektroViaKategori={elektroViaKategori}
+            onEndreElektro={(elektro) => lagre.mutate({ type: "elektro", vegobjekttypeId: id, elektro })}
+          />
+        </div>
+      )}
+
       <ObjekttypeHode
         type={t}
         fkb={krav.data?.fkb ?? false}
@@ -118,6 +143,11 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         onFkb={(fkb) => lagre.mutate({ type: "fkb", vegobjekttypeId: id, fkb })}
         onFkbKommentar={async (kommentar) => {
           await lagre.mutateAsync({ type: "fkbKommentar", vegobjekttypeId: id, kommentar });
+        }}
+        elektro={elektro}
+        tilleggsinformasjon={krav.data?.tilleggsinformasjon ?? null}
+        onTilleggsinformasjon={async (tekst) => {
+          await lagre.mutateAsync({ type: "tilleggsinformasjon", vegobjekttypeId: id, tekst });
         }}
       />
 
@@ -194,23 +224,17 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:gap-6 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Morobjekter</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RelasjonTabell relasjoner={t.relasjonstyper.foreldre} tomTekst="Ingen morobjekter." />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Datterobjekter</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RelasjonTabell relasjoner={t.relasjonstyper.barn} tomTekst="Ingen datterobjekter." />
-          </CardContent>
-        </Card>
+      <div className="grid items-start gap-4 md:gap-6 xl:grid-cols-2">
+        <RelasjonKort
+          tittel="Morobjekter"
+          relasjoner={t.relasjonstyper.foreldre}
+          tomTekst="Ingen morobjekter."
+        />
+        <RelasjonKort
+          tittel="Datterobjekter"
+          relasjoner={t.relasjonstyper.barn}
+          tomTekst="Ingen datterobjekter."
+        />
       </div>
     </div>
   );

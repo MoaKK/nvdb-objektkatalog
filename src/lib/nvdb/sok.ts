@@ -7,6 +7,8 @@ export interface Sokevalg {
   iVerdier: boolean;
   kategoriId: number | null;
   sortering: "navn" | "nummer";
+  bareElektro: boolean;
+  visSomListe: boolean;
 }
 
 export const STANDARD_SOKEVALG: Sokevalg = {
@@ -15,6 +17,8 @@ export const STANDARD_SOKEVALG: Sokevalg = {
   iVerdier: false,
   kategoriId: null,
   sortering: "navn",
+  bareElektro: false,
+  visSomListe: false,
 };
 
 export interface Sokeresultat {
@@ -53,11 +57,11 @@ export function sokVegobjekttyper(indeks: VegobjekttypeIndeks[], valg: Sokevalg)
     if (match) grupper[tilDatakategori(type.hovedkategori)].push({ type, treff });
   }
 
-  const sorter = (a: Sokeresultat, b: Sokeresultat) =>
-    valg.sortering === "nummer"
-      ? a.type.id - b.type.id
-      : a.type.navn.localeCompare(b.type.navn, "nb");
-
-  for (const gruppe of Object.values(grupper)) gruppe.sort(sorter);
+  for (const gruppe of Object.values(grupper)) sorterResultater(gruppe, valg.sortering);
   return grupper;
+}
+export function sorterResultater(liste: Sokeresultat[], sortering: Sokevalg["sortering"]) {
+  return liste.sort((a, b) =>
+    sortering === "nummer" ? a.type.id - b.type.id : a.type.navn.localeCompare(b.type.navn, "nb"),
+  );
 }
