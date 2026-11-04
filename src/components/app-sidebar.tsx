@@ -20,6 +20,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  SidebarSeparator,
   SidebarMenu,
   SidebarMenuItem,
   useSidebar,
@@ -180,7 +181,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar variant="inset">
-      <SidebarHeader className="gap-3 border-b p-4">
+      <SidebarHeader className="relative z-10 gap-3 border-b p-4 shadow-sm">
         <Link
           href="/"
           className="font-semibold leading-tight"
@@ -194,6 +195,7 @@ export function AppSidebar() {
             Krav til innlevering av data
           </span>
         </Link>
+        <SidebarSeparator className="mx-0" />
         <ObjekttypeFiltre valg={valg} onChange={setValg} />
       </SidebarHeader>
 

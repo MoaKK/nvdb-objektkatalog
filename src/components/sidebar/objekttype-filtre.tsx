@@ -46,9 +46,9 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
 
   return (
     <FieldGroup className="gap-2">
-      <InputGroup>
+      <InputGroup className="bg-background shadow-sm dark:bg-input/30">
         <InputGroupAddon>
-          <Search />
+          <Search className="" />
         </InputGroupAddon>
         <InputGroupInput
           value={valg.tekst}
@@ -72,16 +72,22 @@ export function ObjekttypeFiltre({ valg, onChange }: Props) {
         )}
       </InputGroup>
 
-      <Collapsible>
+      <Collapsible className="rounded-lg border bg-background shadow-sm dark:bg-input/30">
         <CollapsibleTrigger
           title="Vis eller skjul filtre"
-          render={<Button variant="ghost" size="sm" className="group w-full justify-between" />}
+          render={
+            <Button
+              variant="ghost"
+              size="sm"
+              className="group w-full justify-between rounded-lg font-medium"
+            />
+          }
         >
           Filtre
           <ChevronDown className="transition-transform group-data-[panel-open]:rotate-180" />
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <FieldGroup className="gap-4 pt-2">
+          <FieldGroup className="gap-4 border-t px-3 pt-3 pb-3">
             <FieldSet className="gap-2">
               <FieldLegend variant="label">Søk også i</FieldLegend>
               <Field orientation="horizontal" title="Søk også i navnene på egenskapstypene">

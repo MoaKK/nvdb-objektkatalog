@@ -17,7 +17,7 @@ import { NvdbNede } from "@/components/nvdb-nede";
 import { AdminMeny } from "@/components/objekttype/admin-meny";
 import { EgenskapTabell } from "@/components/objekttype/egenskap-tabell";
 import { ObjekttypeHode } from "@/components/objekttype/objekttype-hode";
-import { RelasjonTabell } from "@/components/objekttype/relasjon-tabell";
+import { RelasjonKort } from "@/components/objekttype/relasjon-kort";
 import { useElektro } from "@/hooks/use-elektro";
 import { useKrav, useLagreKrav } from "@/hooks/use-krav";
 import { useVegobjekttype } from "@/hooks/use-nvdb";
@@ -224,23 +224,17 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:gap-6 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Morobjekter</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RelasjonTabell relasjoner={t.relasjonstyper.foreldre} tomTekst="Ingen morobjekter." />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Datterobjekter</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RelasjonTabell relasjoner={t.relasjonstyper.barn} tomTekst="Ingen datterobjekter." />
-          </CardContent>
-        </Card>
+      <div className="grid items-start gap-4 md:gap-6 xl:grid-cols-2">
+        <RelasjonKort
+          tittel="Morobjekter"
+          relasjoner={t.relasjonstyper.foreldre}
+          tomTekst="Ingen morobjekter."
+        />
+        <RelasjonKort
+          tittel="Datterobjekter"
+          relasjoner={t.relasjonstyper.barn}
+          tomTekst="Ingen datterobjekter."
+        />
       </div>
     </div>
   );
