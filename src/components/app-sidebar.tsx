@@ -25,6 +25,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NvdbNede } from "@/components/nvdb-nede";
 import { KategoriListe } from "@/components/sidebar/kategori-liste";
 import { ObjekttypeMeny } from "@/components/sidebar/objekttype-meny";
 import { ObjekttypeFiltre } from "@/components/sidebar/objekttype-filtre";
@@ -32,6 +33,7 @@ import { useElektro } from "@/hooks/use-elektro";
 import { useKravoversikt } from "@/hooks/use-krav";
 import { useSokeindeks } from "@/hooks/use-nvdb";
 import { authClient } from "@/lib/auth-client";
+import { erNvdbUtilgjengelig } from "@/lib/nvdb/api-feil";
 import { DATAKATEGORIER } from "@/lib/nvdb/kategori";
 import {
   STANDARD_SOKEVALG,
@@ -207,11 +209,14 @@ export function AppSidebar() {
             </SidebarMenu>
           )}
 
-          {indeks.isError && (
-            <Alert variant="destructive">
-              <AlertDescription>Kunne ikke hente vegobjekttyper fra NVDB.</AlertDescription>
-            </Alert>
-          )}
+          {indeks.isError &&
+            (erNvdbUtilgjengelig(indeks.error) ? (
+              <NvdbNede kompakt onProvIgjen={() => indeks.refetch()} />
+            ) : (
+              <Alert variant="destructive">
+                <AlertDescription>Kunne ikke hente vegobjekttyper fra NVDB.</AlertDescription>
+              </Alert>
+            ))}
 
           {!indeks.isError && begrenset && medKrav.isError && (
             <Alert variant="destructive">

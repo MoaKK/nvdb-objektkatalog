@@ -9,7 +9,13 @@ export function feilrespons(error: unknown) {
     return NextResponse.json({ feil: "Fant ikke objekttypen" }, { status: 404 });
   }
   if (error instanceof ZodError) {
-    return NextResponse.json({ feil: "Uventet svar fra NVDB" }, { status: 502 });
+    return NextResponse.json(
+      { feil: "Uventet svar fra NVDB", kode: "NVDB_UVENTET_SVAR" },
+      { status: 502 },
+    );
   }
-  return NextResponse.json({ feil: "Kunne ikke hente data fra NVDB" }, { status: 502 });
+  return NextResponse.json(
+    { feil: "Kunne ikke hente data fra NVDB", kode: "NVDB_UTILGJENGELIG" },
+    { status: 503 },
+  );
 }

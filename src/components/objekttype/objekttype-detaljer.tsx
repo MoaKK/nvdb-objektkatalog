@@ -13,6 +13,7 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
+import { NvdbNede } from "@/components/nvdb-nede";
 import { AdminMeny } from "@/components/objekttype/admin-meny";
 import { EgenskapTabell } from "@/components/objekttype/egenskap-tabell";
 import { ObjekttypeHode } from "@/components/objekttype/objekttype-hode";
@@ -20,6 +21,7 @@ import { RelasjonTabell } from "@/components/objekttype/relasjon-tabell";
 import { useElektro } from "@/hooks/use-elektro";
 import { useKrav, useLagreKrav } from "@/hooks/use-krav";
 import { useVegobjekttype } from "@/hooks/use-nvdb";
+import { erNvdbUtilgjengelig } from "@/lib/nvdb/api-feil";
 import { authClient } from "@/lib/auth-client";
 
 export function DetaljerSkjelett() {
@@ -87,6 +89,13 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   if (type.isPending) return <DetaljerSkjelett />;
 
   if (type.isError) {
+    if (erNvdbUtilgjengelig(type.error)) {
+      return (
+        <div className="mx-auto w-full max-w-6xl">
+          <NvdbNede onProvIgjen={() => type.refetch()} />
+        </div>
+      );
+    }
     return (
       <Alert variant="destructive">
         <AlertTitle>Kunne ikke hente vegobjekttypen</AlertTitle>
@@ -101,7 +110,7 @@ export function ObjekttypeDetaljer({ id }: { id: number }) {
   const elektro = markertElektro || elektroViaKategori;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 md:gap-4">
       {krav.isError && (
         <Alert variant="destructive">
           <AlertTitle>Kunne ikke hente vegavdelingens krav</AlertTitle>
